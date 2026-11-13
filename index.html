@@ -1,0 +1,1630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Frontier Lab Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a training-loss curve is the map; each checkpoint on it is a phase card below. Every topic expands into the concepts to know, each one searchable. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#5A6476; --line:#D9DEE7;
+  --accent:#2C55D6; --accent-soft:#E3E9FB; --warm:#C9741C; --warm-soft:#FBEEDD; --good:#1E8A5A;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161B24; --ink:#E5E9F0; --muted:#98A2B5; --line:#2A3241;
+  --accent:#7C9BFF; --accent-soft:#1D2742; --warm:#F0A55A; --warm-soft:#33261A; --good:#4CC28A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161B24; --ink:#E5E9F0; --muted:#98A2B5; --line:#2A3241;
+  --accent:#7C9BFF; --accent-soft:#1D2742; --warm:#F0A55A; --warm-soft:#33261A; --good:#4CC28A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:32px 64px}
+.wrap{max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:40px}
+h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; line-height:1.15}
+h1{font-size:clamp(2rem, 5vw, 3.1rem); font-weight:700; letter-spacing:-0.02em}
+h2{font-size:1.6rem; font-weight:700}
+h3{font-size:1.15rem; font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+.eyebrow{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.lede{color:var(--muted); max-width:70ch; font-size:1.02rem}
+
+header{display:flex; flex-direction:column; gap:14px}
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; font-size:.85rem; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.dot{width:10px; height:10px; border-radius:50%; display:inline-block}
+
+.curve-box{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px 18px 8px}
+.curve-head{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:6px}
+.curve-scroll{overflow-x:auto}
+#curve{display:block; width:100%; min-width:680px; height:auto}
+#curve text{font-family:var(--f-mono); fill:var(--muted); font-size:12px}
+#curve .ck{cursor:pointer}
+#curve .ck:hover circle.outer, #curve .ck:focus circle.outer{stroke-width:4}
+#curve .ck:focus{outline:none}
+.overall{font-family:var(--f-mono); font-size:.85rem; color:var(--muted)}
+.overall b{color:var(--ink); font-variant-numeric:tabular-nums}
+
+.start{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.start > div{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.start ul{margin:0; padding-left:18px}
+.start li{margin:2px 0}
+.tag-good{color:var(--good)} .tag-warm{color:var(--warm)}
+@media (max-width:720px){.start{grid-template-columns:1fr}}
+
+/* toolbar */
+.toolbar{position:sticky; top:env(safe-area-inset-top, 0px); z-index:5; background:var(--bg); padding-block:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; border-bottom:1px solid var(--line)}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top, 0px); z-index:10; background:var(--bg)}
+.toolbar input{flex:1 1 260px; min-width:0; font:inherit; font-size:.95rem; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink)}
+.btn{font:inherit; font-size:.85rem; background:var(--surface); border:1px solid var(--line); color:var(--ink); padding:7px 12px; border-radius:8px; cursor:pointer}
+.btn:hover{border-color:var(--accent); color:var(--accent)}
+.count{font-family:var(--f-mono); font-size:.8rem; color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* phases */
+.phases{display:flex; flex-direction:column; gap:22px}
+.phase{background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden; scroll-margin-top:70px}
+.phase-head{display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start; padding:20px 22px; border-bottom:1px solid var(--line)}
+.step{font-family:var(--f-mono); font-size:.8rem; background:var(--accent-soft); color:var(--accent); padding:4px 8px; border-radius:6px; white-space:nowrap}
+.phase-title{display:flex; flex-direction:column; gap:6px; min-width:0}
+.phase-title p{color:var(--muted)}
+.meta{display:flex; flex-direction:column; align-items:flex-end; gap:6px; font-family:var(--f-mono); font-size:.78rem; color:var(--muted); white-space:nowrap}
+.bar{width:110px; height:6px; background:var(--line); border-radius:3px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--good); width:0; transition:width .3s}
+.note{margin:16px 22px 0; padding:10px 14px; background:var(--warm-soft); border-radius:8px; font-size:.9rem}
+.note b{color:var(--warm)}
+.phase-body{display:grid; grid-template-columns:1.5fr 1fr; gap:0}
+.col{padding:18px 22px; display:flex; flex-direction:column; gap:18px; min-width:0}
+.col + .col{border-left:1px solid var(--line)}
+@media (max-width:860px){.phase-body{grid-template-columns:1fr} .col + .col{border-left:none; border-top:1px solid var(--line)} .phase-head{grid-template-columns:auto 1fr} .meta{grid-column:1 / -1; flex-direction:row; align-items:center; justify-content:flex-start}}
+.block{display:flex; flex-direction:column; gap:8px}
+.group{display:flex; flex-direction:column; gap:6px}
+.gname{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.07em; text-transform:uppercase; color:var(--accent); margin-top:6px}
+
+/* topics */
+.topic{border:1px solid var(--line); border-radius:8px; background:var(--bg)}
+.topic summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 12px; font-weight:600; font-size:.93rem}
+.topic summary::-webkit-details-marker{display:none}
+.topic summary::before{content:"+"; font-family:var(--f-mono); color:var(--muted); width:12px; flex:none}
+.topic[open] summary::before{content:"−"}
+.topic summary .tn{flex:1; min-width:0}
+.topic summary .tc{font-family:var(--f-mono); font-size:.72rem; color:var(--muted); font-weight:400; white-space:nowrap}
+.tbody{padding:2px 14px 14px 34px; display:flex; flex-direction:column; gap:10px}
+.concepts{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.concepts li{font-size:.9rem; line-height:1.5}
+.concepts a{font-weight:600; text-decoration:none; border-bottom:1px solid var(--line)}
+.concepts a:hover{border-bottom-color:var(--accent)}
+.concepts span{color:var(--muted)}
+.selftest{font-size:.88rem; padding:8px 12px; border-radius:6px; background:var(--accent-soft)}
+.selftest b{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin-right:6px}
+.tsearch{align-self:flex-start; font-size:.8rem}
+@media (max-width:600px){.topic summary{flex-wrap:wrap} .topic summary .tn{flex-basis:calc(100% - 24px)}}
+
+.res{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.res li{display:flex; flex-direction:column; gap:1px}
+.res a{font-weight:500; text-decoration:none}
+.res a:hover{text-decoration:underline}
+.res span{color:var(--muted); font-size:.85rem}
+.project{background:var(--accent-soft); border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:6px}
+.project h4{margin:0; font-family:var(--f-display); font-size:1rem}
+.project p{font-size:.9rem}
+.ladder{margin:0; padding-left:20px; font-size:.88rem; display:flex; flex-direction:column; gap:4px}
+.pnote{color:var(--muted); font-size:.82rem !important}
+.lvl{font-family:var(--f-mono); font-size:.68rem; font-weight:500; color:var(--muted); border:1px dashed var(--muted); padding:0 6px; border-radius:4px; white-space:nowrap}
+.checks{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.checks label{display:grid; grid-template-columns:18px 1fr; gap:10px; align-items:start; font-size:.9rem; cursor:pointer}
+.checks input{margin:3px 0 0; accent-color:var(--good); width:16px; height:16px}
+.checks input:checked + span{color:var(--muted); text-decoration:line-through}
+.empty{padding:14px 22px; color:var(--muted); font-size:.9rem}
+
+section.block-sec{display:flex; flex-direction:column; gap:16px}
+.grid3{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px}
+.grid2{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px}
+@media (max-width:900px){.grid3{grid-template-columns:repeat(2, minmax(0,1fr))}}
+@media (max-width:600px){.grid3,.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.card p{font-size:.9rem; color:var(--muted)}
+.card .fit{font-family:var(--f-mono); font-size:.75rem; color:var(--warm)}
+.card .concepts{gap:6px}
+.card .concepts li{font-size:.86rem}
+.chip{font-size:.82rem; padding:3px 9px; border:1px solid var(--line); border-radius:999px; text-decoration:none; color:var(--ink); background:var(--bg); line-height:1.5}
+.chip:hover{border-color:var(--accent); color:var(--accent)}
+.chip::after{content:" \2197"; color:var(--muted); font-size:.75em}
+
+.tbl-wrap{overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:10px}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:.9rem}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:500}
+tr:last-child td{border-bottom:none}
+td code{font-family:var(--f-mono); font-size:.85em; background:var(--bg); padding:1px 5px; border-radius:4px}
+
+.week{display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px}
+.week > div{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:4px; min-width:0}
+.week .d{font-family:var(--f-mono); font-size:.75rem; color:var(--muted)}
+.week .h{font-weight:600}
+.week p{font-size:.85rem; color:var(--muted)}
+@media (max-width:760px){.week{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.week{grid-template-columns:1fr}}
+
+footer{color:var(--muted); font-size:.85rem; border-top:1px solid var(--line); padding-top:16px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Training plan · ~15 hrs/week · 18 to 24 months</span>
+    <h1>From full-stack data scientist to frontier-lab engineer</h1>
+    <p class="lede">Ten phases, ordered so each one uses the last. Every topic expands into the specific concepts you should know in depth, with a self-test question to check yourself. Each concept name is a search link. Tick the checks as you finish them; progress is saved in this browser.</p>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>Phase checkpoint</span>
+      <span><i class="dot" style="background:var(--good)"></i>Phase complete</span>
+      <span><i class="dot" style="background:var(--warm)"></i>Your starting point</span>
+    </div>
+  </header>
+
+  <div class="curve-box">
+    <div class="curve-head">
+      <h3>The loss curve you are trying to bend</h3>
+      <span class="overall">Overall progress <b id="overallPct">0%</b></span>
+    </div>
+    <div class="curve-scroll"><svg id="curve" viewBox="0 0 1000 250" role="img" aria-label="Roadmap phases drawn as checkpoints along a decreasing training loss curve"></svg></div>
+  </div>
+
+  <section class="start" aria-label="Starting point">
+    <div>
+      <span class="eyebrow tag-good">What you already bring</span>
+      <ul>
+        <li>Deep learning and computer vision in production (Siamese CNNs, recommenders)</li>
+        <li>Production MLOps on AWS: ECS Fargate, SageMaker, Lambda, Docker</li>
+        <li>Research experience and peer-reviewed publications, including scientific ML</li>
+        <li>Signal processing and estimation from your EE background (EKF, particle filters)</li>
+      </ul>
+      <p style="color:var(--muted);font-size:.9rem">These let you move fast through Phases 1 and 2 and give you an edge in multimodal and infra work.</p>
+    </div>
+    <div>
+      <span class="eyebrow tag-warm">The gaps that matter at a lab</span>
+      <ul>
+        <li>Transformers and LLMs, built and trained from scratch</li>
+        <li>NLP representations and multimodal clinical data</li>
+        <li>GPU performance and distributed training (where most lab engineering lives)</li>
+        <li>Post-training and reinforcement learning</li>
+        <li>Evals at scale and a body of public, verifiable work</li>
+      </ul>
+      <p style="color:var(--muted);font-size:.9rem">Labs hire on evidence. Each phase ends with a project you can put on GitHub and write about.</p>
+    </div>
+  </section>
+
+  <section class="block-sec" aria-label="Phases">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">The core path</span>
+      <h2>Ten phases</h2>
+    </div>
+    <div class="toolbar">
+      <label for="filter" class="eyebrow" style="flex:none">Find</label>
+      <input id="filter" type="search" placeholder="Filter topics and concepts, e.g. KV cache, RoPE, FSDP" autocomplete="off">
+      <button class="btn" type="button" id="expandAll">Expand all</button>
+      <button class="btn" type="button" id="collapseAll">Collapse all</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="phases" id="phases"></div>
+  </section>
+
+  <section class="block-sec" aria-label="Specialization tracks">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">After Phase 9 · pick one, go deep</span>
+      <h2>Specialization tracks</h2>
+      <p class="lede">Labs hire people who are very good at one thing and competent across the rest. These map to real team structures. Each card lists what depth in that track looks like.</p>
+    </div>
+    <div class="grid3" id="tracks"></div>
+  </section>
+
+  <section class="block-sec" aria-label="Numbers to know">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">Back-of-envelope fluency</span>
+      <h2>Numbers you should be able to use without looking up</h2>
+      <p class="lede">Lab interviews and design discussions lean on these estimates constantly. Search each one and derive it yourself once.</p>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Quantity</th><th>Rule of thumb</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td>Matmul cost</td><td><code>(m×k)·(k×n) = 2mkn FLOPs</code></td><td>The unit every other compute estimate is built from</td></tr>
+        <tr><td>Training compute</td><td><code>FLOPs ≈ 6 · N · D</code> (N params, D tokens)</td><td>2N forward + 4N backward per token. Estimate run time and cost</td></tr>
+        <tr><td>Inference compute</td><td><code>≈ 2 · N</code> FLOPs per generated token</td><td>Serving cost and throughput planning</td></tr>
+        <tr><td>Transformer params</td><td><code>≈ 12 · L · d²</code> plus <code>V · d</code> embeddings</td><td>Size a model from its config in your head</td></tr>
+        <tr><td>Compute-optimal data</td><td>About 20 tokens per parameter (Chinchilla)</td><td>Sizing model vs dataset for a fixed budget</td></tr>
+        <tr><td>Training memory with Adam</td><td>About 16 bytes per parameter in mixed precision, before activations</td><td>Why a 7B model does not fit on one 80 GB GPU for full training</td></tr>
+        <tr><td>Inference weight memory</td><td>2 bytes/param in BF16, ~0.5 in 4-bit</td><td>A 70B model needs ~140 GB in BF16, ~35 GB in 4-bit</td></tr>
+        <tr><td>KV cache size</td><td><code>2 · layers · kv_heads · head_dim · seq_len · batch · bytes</code></td><td>The main memory limit on long-context inference</td></tr>
+        <tr><td>Initial LM loss</td><td><code>≈ ln(vocab size)</code>, ~10.8 for 50k vocab</td><td>First sanity check that a training run is wired correctly</td></tr>
+        <tr><td>H100 SXM</td><td>~989 TFLOPS dense BF16, ~3.35 TB/s HBM, 80 GB, 132 SMs</td><td>Roofline analysis: compute bound or memory bound?</td></tr>
+        <tr><td>Arithmetic intensity</td><td>FLOPs ÷ bytes moved; H100 ridge point ≈ 989e12 ÷ 3.35e12 ≈ 300</td><td>Tells you whether a kernel can ever be fast</td></tr>
+        <tr><td>Interconnect</td><td>NVLink ~900 GB/s per GPU; InfiniBand ~50 GB/s per 400 Gb/s NIC</td><td>Why tensor parallelism stays inside a node</td></tr>
+        <tr><td>Ring all-reduce</td><td>Each GPU sends <code>2(N−1)/N × size</code> bytes</td><td>Estimate data-parallel communication time</td></tr>
+        <tr><td>Pipeline bubble</td><td><code>(p−1) / (m+p−1)</code> for p stages, m micro-batches</td><td>Why you need many micro-batches</td></tr>
+        <tr><td>MFU</td><td>Achieved FLOPs ÷ peak FLOPs; 40 to 55% is good for large training</td><td>The headline efficiency metric for training runs</td></tr>
+        <tr><td>Eval error bar</td><td><code>SE = √(p(1−p)/n)</code>; 1,000 questions at 70% gives ±2.9 pts (95%)</td><td>Whether a 2-point benchmark gain means anything</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="block-sec" aria-label="Threads">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">Run these in parallel the whole way</span>
+      <h2>Habits that compound</h2>
+    </div>
+    <div class="grid3" id="threads"></div>
+  </section>
+
+  <section class="block-sec" aria-label="Weekly rhythm">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">A sustainable 15-hour week</span>
+      <h2>Weekly rhythm</h2>
+    </div>
+    <div class="week">
+      <div><span class="d">Mon · 2h</span><span class="h">Lecture / reading</span><p>One lecture or chapter from the current phase.</p></div>
+      <div><span class="d">Tue · 3h</span><span class="h">Build</span><p>Code the thing you just learned, from scratch.</p></div>
+      <div><span class="d">Wed · 2h</span><span class="h">Paper</span><p>Read one paper properly. Write a 5-line summary.</p></div>
+      <div><span class="d">Thu · 3h</span><span class="h">Build</span><p>Push the phase project forward. Run experiments.</p></div>
+      <div><span class="d">Weekend · 5h</span><span class="h">Deep work + write</span><p>Long debugging or training sessions. Publish notes every 2 to 3 weeks.</p></div>
+    </div>
+  </section>
+
+  <section class="block-sec" aria-label="Getting hired">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">Phase 10 and beyond</span>
+      <h2>Getting hired</h2>
+    </div>
+    <div class="grid2" id="hiring"></div>
+  </section>
+
+  <footer>
+    <span>The bar at frontier labs is very high and hiring is competitive. Treat this as a plan for becoming strong, with lab roles as one of several good outcomes.</span>
+    <span style="display:flex;gap:8px;align-items:center">
+      <button class="btn" type="button" id="resetBtn">Reset progress</button>
+      <button class="btn" type="button" id="confirmReset" hidden>Confirm reset</button>
+    </span>
+  </footer>
+</div>
+
+<script>
+const S = q => "https://www.google.com/search?q=" + encodeURIComponent(q);
+
+/* Topic format: [name, search query, [[concept, what to know], ...], self-test question] */
+const PHASES = [
+{
+  id:"p0", step:"STEP 0", title:"Calibrate and sharpen the foundations", weeks:"3 to 5 wks", ctx:"machine learning",
+  goal:"Close small gaps in the math and engineering that everything later depends on. Skim what you know, slow down on what you don't.",
+  note:"<b>For you:</b> skim the math quickly. Spend most of the time on numerics and software engineering habits: testing, profiling, Linux, and writing clean PyTorch.",
+  topics:[
+    {g:"Linear algebra", t:[
+      ["Matrices as linear maps and FLOP counting","matrix multiplication FLOPs count deep learning",[
+        ["Einsum notation","Read every tensor operation as an einsum and know the output shape before running the code."],
+        ["Matmul FLOPs","Multiplying (m×k) by (k×n) costs 2mkn FLOPs. Every compute estimate later in this roadmap is built on this."],
+        ["Batched matmul and broadcasting","How a (B, T, d) activation times a (d, d) weight is executed as one large matmul."],
+        ["Transpose and memory layout","Row-major vs column-major and why a transpose can be free (a view) or expensive (a copy)."]],
+       "How many FLOPs is one forward pass of a 4096×4096 linear layer on 2,048 tokens?"],
+      ["Decompositions and low rank","SVD low rank approximation Eckart Young",[
+        ["Rank","The dimension of a matrix's column space. A weight update with low rank changes only a few directions."],
+        ["SVD","Any matrix is UΣVᵀ. Truncating to the top r singular values gives the best rank-r approximation (Eckart-Young)."],
+        ["Eigendecomposition","For symmetric matrices like covariance and Hessians. Eigenvalues describe curvature along each direction."],
+        ["Low-rank factorization in practice","LoRA, MLA's compressed KV cache, and model compression all rely on weights or updates being near low rank."]],
+       "Why does LoRA with rank 16 on a 4096×4096 matrix use about 0.8% of the parameters?"],
+      ["Norms and conditioning","spectral norm condition number neural networks",[
+        ["Vector norms","L1, L2 and L∞. Gradient clipping uses the global L2 norm across all parameters."],
+        ["Frobenius and spectral norm","Spectral norm is the largest singular value: the most a layer can stretch any input."],
+        ["Condition number","Ratio of largest to smallest singular value. High values mean numerically fragile solves and slow optimization."],
+        ["Orthogonal matrices","Preserve norms. Used in orthogonal init and in optimizers like Muon that orthogonalize updates."]],
+       "If every layer has spectral norm 1.1, what happens to activations through 100 layers without residuals or normalization?"]
+    ]},
+    {g:"Calculus and backprop", t:[
+      ["Matrix calculus","matrix calculus for deep learning Parr Howard",[
+        ["Gradient vs Jacobian","A gradient is for scalar outputs; a Jacobian maps every input to every output. Backprop never builds full Jacobians."],
+        ["Vector-Jacobian products","Reverse mode autodiff multiplies the upstream gradient by each local Jacobian, right to left."],
+        ["Gradient of a matmul","For Y = XW: dL/dW = Xᵀ·dL/dY and dL/dX = dL/dY·Wᵀ. Memorize these two."],
+        ["Softmax + cross-entropy gradient","The gradient with respect to the logits is softmax(z) minus the one-hot target. Clean and stable."],
+        ["Forward vs reverse mode","Forward mode is cheap for few inputs, reverse mode for few outputs. Losses are scalar, so we use reverse."]],
+       "Why does training cost about 6N FLOPs per token when the forward pass is only 2N?"],
+      ["Gradient checking","numerical gradient check finite differences",[
+        ["Central finite differences","(f(x+h) − f(x−h)) / 2h, with error of order h². Use float64 when checking."],
+        ["Relative error","Compare |a−b| / max(|a|,|b|). Below 1e-6 in float64 is a pass."],
+        ["torch.autograd.gradcheck","PyTorch's built-in checker for custom autograd functions."]],
+       "Why should a gradient check run in float64 rather than float32?"]
+    ]},
+    {g:"Probability and information theory", t:[
+      ["Probability for ML","maximum likelihood estimation cross entropy",[
+        ["Maximum likelihood","Training with cross-entropy is maximizing the log-likelihood of the data under the model."],
+        ["MAP and priors","Weight decay corresponds to a Gaussian prior on weights."],
+        ["Variance of sums","Var of a sum of n independent terms grows with n. This is why initialization scales by 1/√fan_in."],
+        ["Monte Carlo estimates","Estimating an expectation by sampling. RL gradients and eval scores are both Monte Carlo estimates with variance."],
+        ["Log-derivative trick","∇E[f(x)] = E[f(x)·∇log p(x)]. The foundation of policy gradients in Phase 7."]],
+       "Derive the REINFORCE gradient estimator using the log-derivative trick."],
+      ["Information theory","KL divergence forward vs reverse mode seeking",[
+        ["Entropy and cross-entropy","Cross-entropy H(p,q) = H(p) + KL(p‖q). Minimizing it pushes the model toward the data distribution."],
+        ["Forward vs reverse KL","Forward KL is mode-covering, reverse KL is mode-seeking. This matters for distillation and RL KL penalties."],
+        ["Perplexity and bits per byte","Perplexity is exp(loss in nats). Bits per byte lets you compare models with different tokenizers."],
+        ["Prediction is compression","A better language model is a better compressor via arithmetic coding. A useful lens on what pretraining does."]],
+       "Why would a model's perplexity improve after switching tokenizers even if the model is no better?"]
+    ]},
+    {g:"Numerics", t:[
+      ["Floating point formats","bf16 fp16 fp8 e4m3 e5m2 floating point",[
+        ["IEEE 754 layout","Sign, exponent and mantissa bits. Exponent bits set the range, mantissa bits set the precision."],
+        ["BF16 vs FP16","BF16 keeps FP32's 8 exponent bits with only 7 mantissa bits: same range, less precision, so no loss scaling is needed."],
+        ["FP8 E4M3 and E5M2","E4M3 for weights and activations, E5M2 for gradients. Requires per-tensor or block-wise scaling factors."],
+        ["Accumulation precision","Matmuls on BF16 inputs still accumulate in FP32. Summing many small values in low precision loses them."],
+        ["Machine epsilon","The gap between 1 and the next representable number. BF16's is about 0.0078, so 1 + 0.001 = 1 in BF16."]],
+       "Why can adding a tiny weight update to a BF16 weight do nothing at all, and how do FP32 master weights fix it?"],
+      ["Numerical stability tricks","log-sum-exp trick online softmax",[
+        ["Log-sum-exp","Subtract the max before exponentiating so exp never overflows."],
+        ["Online softmax","Compute softmax in one streaming pass using a running max and running sum. This is the core trick in FlashAttention."],
+        ["Working in log space","Multiply probabilities by adding log-probabilities to avoid underflow."],
+        ["Epsilon placement","Where the ε goes in LayerNorm, Adam and division changes behavior near zero."]],
+       "Write a numerically stable softmax and an online softmax that sees one element at a time."]
+    ]},
+    {g:"Optimization", t:[
+      ["Optimizers","Adam AdamW bias correction explained",[
+        ["SGD with momentum","An exponential moving average of gradients smooths noisy updates."],
+        ["Adam","Per-parameter step sizes from first and second moment estimates, with bias correction for the early steps."],
+        ["AdamW","Weight decay applied directly to weights, decoupled from the gradient. Standard for LLMs, typically with β₂ = 0.95."],
+        ["Optimizer memory","Adam stores two FP32 states per parameter: 8 extra bytes per parameter."],
+        ["Newer optimizers","Lion, Shampoo, SOAP and Muon. Muon orthogonalizes the momentum update with Newton-Schulz iterations."]],
+       "Why does Adam need bias correction, and what goes wrong in the first steps without it?"],
+      ["Training dynamics basics","critical batch size gradient noise scale",[
+        ["Learning rate","Usually the single most important hyperparameter. Sweep it on a log scale first."],
+        ["Critical batch size","Beyond it, larger batches give diminishing returns per token (gradient noise scale, McCandlish et al.)."],
+        ["Warmup","Small early steps let Adam's second-moment estimates settle and avoid early instability."],
+        ["Edge of stability","Training often settles where sharpness hovers near 2/learning rate."]],
+       "If you double the batch size, how should you change the learning rate, and when does that rule stop working?"]
+    ]},
+    {g:"Engineering", t:[
+      ["Profiling and performance in Python","py-spy cProfile python profiling",[
+        ["cProfile and py-spy","Find where time goes before optimizing. py-spy attaches to running processes."],
+        ["Vectorization","Replace Python loops with tensor operations. Loops over elements are 100× slower or more."],
+        ["The GIL","Why data loading uses multiple processes rather than threads."],
+        ["Memory profiling","tracemalloc for Python objects; torch.cuda memory tools for GPU memory later."]],
+       "Your training step is slow but GPU utilization is 30%. What are the first three things you check?"],
+      ["Testing ML code","how to test machine learning code",[
+        ["Overfit a single batch","If the model cannot drive loss to near zero on one batch, something is broken."],
+        ["Shape and dtype assertions","Libraries like jaxtyping make tensor shapes part of function signatures."],
+        ["Determinism and seeds","Seed everything and know which CUDA ops are nondeterministic."],
+        ["Reference comparisons","Compare your implementation's outputs against a trusted one (e.g. Hugging Face) on fixed inputs."]],
+       "Name four tests you would write for a from-scratch attention implementation."],
+      ["Remote GPU workflow","remote GPU development ssh tmux workflow",[
+        ["ssh config and port forwarding","Reach Jupyter or TensorBoard on a remote box through an ssh tunnel."],
+        ["tmux","Keep training runs alive after you disconnect."],
+        ["nvidia-smi and nvtop","Watch utilization, memory and power. Low power draw usually means the GPU is starved."],
+        ["GPU containers","The NVIDIA Container Toolkit, CUDA versions, and matching driver and PyTorch builds."],
+        ["Git worktrees and bisect","Parallel branches for experiments; bisect to find which commit broke training."]],
+       "How do you check whether a training run is GPU-bound or data-loader-bound in under a minute?"]
+    ]}
+  ],
+  res:[
+    ["Mathematics for Machine Learning (Deisenroth et al.)","Free book. Reference, not cover to cover.","Mathematics for Machine Learning Deisenroth free pdf"],
+    ["The Matrix Calculus You Need for Deep Learning","Short paper by Parr and Howard.","The Matrix Calculus You Need For Deep Learning"],
+    ["3Blue1Brown: Essence of Linear Algebra","Visual intuition in a weekend.","3Blue1Brown essence of linear algebra"],
+    ["What Every Computer Scientist Should Know About Floating-Point","The classic Goldberg paper. Skim sections 1 and 2.","What Every Computer Scientist Should Know About Floating-Point Arithmetic"],
+    ["The Missing Semester of Your CS Education (MIT)","Shell, git, debugging, profiling.","MIT missing semester"]
+  ],
+  project:["Autograd engine","Write a tiny scalar autograd engine and a 2-layer MLP on top of it, with unit tests that check gradients numerically. Then rewrite it for tensors with matmul backward."],
+  checks:["Can derive the gradient of softmax + cross-entropy by hand","Can explain why bf16 is preferred over fp16 for training","Autograd engine passes numerical gradient checks","Comfortable working on a remote GPU box over ssh + tmux","Can derive the 6N training FLOPs rule from matmul backward"]
+},
+{
+  id:"p1", step:"STEP 1", title:"Deep learning from first principles", weeks:"4 to 6 wks", ctx:"deep learning",
+  goal:"Rebuild your deep learning knowledge bottom-up so you understand what PyTorch is doing underneath, not just how to call it.",
+  note:"<b>For you:</b> you know applied DL well. The value here is the low-level view: tensors, autograd internals, initialization, and training dynamics.",
+  topics:[
+    {g:"PyTorch internals", t:[
+      ["Tensors and memory layout","pytorch tensor storage stride view contiguous",[
+        ["Storage, shape, stride, offset","A tensor is a view onto a flat storage. Strides say how many elements to skip per dimension."],
+        ["Views vs copies","transpose, view, and slicing are free; .contiguous() and reshape on non-contiguous tensors copy."],
+        ["Broadcasting rules","Align shapes from the right; size-1 dimensions stretch. Silent broadcasting bugs are common."],
+        ["In-place ops","They save memory but can break autograd; PyTorch tracks this with version counters."],
+        ["Async CUDA execution","CUDA calls return immediately. Time GPU code with torch.cuda.synchronize() or CUDA events."]],
+       "What are the strides of a contiguous (4, 8, 16) tensor, and what are they after .transpose(0, 2)?"],
+      ["Autograd","pytorch autograd mechanics saved tensors",[
+        ["Dynamic graph","Each operation records a grad_fn node during the forward pass; backward walks it in reverse."],
+        ["Saved tensors","Activations saved for backward are the main memory cost of training."],
+        ["Custom autograd.Function","Write your own forward and backward, e.g. to fuse ops or save less memory."],
+        ["no_grad, inference_mode, detach","Three ways to stop tracking, with different guarantees."],
+        ["Gradient accumulation","Sum gradients over micro-batches before stepping to simulate a larger batch."]],
+       "Why does doubling sequence length roughly double training memory even though the weights stay the same?"],
+      ["Data pipeline","pytorch dataloader num_workers pin_memory",[
+        ["DataLoader workers","num_workers, prefetch_factor, persistent_workers. Data loading must stay ahead of the GPU."],
+        ["pin_memory and non_blocking","Page-locked memory enables async host-to-device copies."],
+        ["Memory-mapped token files","LM datasets are stored as one big uint16 array via np.memmap; batches are random slices."],
+        ["Streaming datasets","For data larger than disk: Hugging Face streaming, WebDataset, MosaicML streaming."]],
+       "Why store GPT-2 tokens as uint16, and what breaks if the vocab grows past 65,535?"]
+    ]},
+    {g:"Training dynamics", t:[
+      ["Initialization","Kaiming Xavier initialization derivation variance",[
+        ["Variance preservation","Choose weight variance so activations neither explode nor vanish layer to layer."],
+        ["Xavier vs Kaiming","Xavier for symmetric activations (1/fan_avg); Kaiming for ReLU-like (2/fan_in)."],
+        ["Residual scaling","GPT-2 scales residual output projections by 1/√(number of residual layers) to keep the stream's variance in check."],
+        ["Zero init tricks","Zero-initialized final layers make each block start as the identity function."]],
+       "Derive the Kaiming init variance for a ReLU layer."],
+      ["Normalization","LayerNorm vs RMSNorm pre-LN post-LN",[
+        ["BatchNorm","Normalizes over the batch. Bad for language models because of variable lengths and small per-device batches."],
+        ["LayerNorm vs RMSNorm","RMSNorm drops mean-centering and the bias. Cheaper and works as well; used in Llama-style models."],
+        ["Pre-LN vs Post-LN","Pre-LN puts the norm inside the residual branch, giving a clean residual path and stable training without careful warmup."],
+        ["QK-norm","Normalizing queries and keys stops attention logits from growing and causing loss spikes."]],
+       "Why do Post-LN transformers need learning rate warmup more than Pre-LN ones?"],
+      ["Activations","GELU SiLU SwiGLU activation functions",[
+        ["ReLU and dead neurons","Units stuck at zero stop learning."],
+        ["GELU and SiLU","Smooth ReLU variants used in modern transformers."],
+        ["Gated linear units","GLU variants multiply two projections; SwiGLU is the default MLP in most open LLMs."]],
+       "Why does a SwiGLU MLP use a hidden size of about 8/3·d instead of 4·d?"],
+      ["Schedules, clipping and stability","warmup stable decay WSD learning rate schedule",[
+        ["Cosine decay","Warmup, then decay to about 10% of peak. The classic LLM schedule."],
+        ["Warmup-stable-decay (WSD)","Constant LR then a short final decay. Lets you branch checkpoints and extend training."],
+        ["Gradient clipping","Clip the global norm (usually to 1.0) to survive occasional huge gradients."],
+        ["Loss spikes","Sudden jumps in loss. Causes include bad data batches, attention logit growth, and too high a learning rate."]],
+       "Why does WSD make it cheaper to run scaling-law experiments than a cosine schedule?"],
+      ["Regularization and generalization","double descent grokking deep learning",[
+        ["Weight decay and dropout","Weight decay is standard; dropout is usually off in LLM pretraining because data is not repeated."],
+        ["Double descent","Test error can fall again past the interpolation threshold."],
+        ["Grokking","Networks can generalize long after memorizing training data."],
+        ["Data augmentation","Central in vision (your background), rare in text pretraining."]],
+       "Why does single-epoch LLM pretraining rarely need dropout?"]
+    ]},
+    {g:"Debugging training", t:[
+      ["A training debugging checklist","A Recipe for Training Neural Networks Karpathy",[
+        ["Check initial loss","For classification over V classes it should be about ln(V). Far off means wrong init or a label bug."],
+        ["Overfit one batch","Proves the model and loss can learn at all."],
+        ["Activation and gradient histograms","Per layer, to spot saturation, dead units or exploding layers."],
+        ["Update-to-weight ratio","Around 1e-3 per step is a healthy rule of thumb. Much higher or lower suggests a bad learning rate."],
+        ["Visualize inputs right before the model","Most bugs are in the data pipeline, not the model."]],
+       "Your loss plateaus at exactly ln(vocab). Name three likely causes."]
+    ]},
+    {g:"Architectures to know beyond transformers", t:[
+      ["Sequence models before transformers","LSTM vanishing gradients Bahdanau attention",[
+        ["RNNs and vanishing gradients","Repeated multiplication by the same matrix shrinks or explodes gradients over time."],
+        ["LSTMs and gates","Gating creates paths along which gradients survive."],
+        ["Seq2seq with attention","Bahdanau attention: the idea that led directly to transformers."],
+        ["State space models","Mamba and linear recurrences: the current alternative to attention for long sequences."]],
+       "What problem does attention solve that a fixed-size RNN hidden state cannot?"],
+      ["Contrastive and representation learning","CLIP InfoNCE contrastive loss",[
+        ["Siamese networks","Your selfie-verification work. Shared encoders with a distance-based loss."],
+        ["InfoNCE","Contrastive loss treating other batch items as negatives. Larger batches give more negatives."],
+        ["CLIP","Aligns image and text encoders. The backbone of most vision-language models."],
+        ["Self-supervised vision","SimCLR, DINO, MAE. Learning visual features without labels."]],
+       "Why does CLIP's quality depend strongly on batch size?"],
+      ["Generative models","diffusion models DDPM explained VAE ELBO",[
+        ["VAEs","Encoder, decoder, the ELBO, and the reparameterization trick."],
+        ["Diffusion (DDPM)","Learn to predict noise added at each step; sampling reverses the noising process."],
+        ["Flow matching","A simpler training objective now used in many image and video models."],
+        ["Latent diffusion","Diffuse in a compressed latent space for efficiency (Stable Diffusion)."]],
+       "What does the reparameterization trick allow you to backpropagate through?"]
+    ]}
+  ],
+  res:[
+    ["Neural Networks: Zero to Hero (Karpathy)","Video series. micrograd, makemore. Do every exercise.","Karpathy Neural Networks Zero to Hero"],
+    ["Understanding Deep Learning (Simon Prince)","Free, modern, clear figures.","Understanding Deep Learning Simon Prince book"],
+    ["A Recipe for Training Neural Networks","Karpathy's blog post. Read it twice.","A Recipe for Training Neural Networks"],
+    ["PyTorch internals (Edward Yang)","Blog post on how PyTorch is built.","ezyang PyTorch internals blog"],
+    ["Deep Learning Tuning Playbook (Google)","Practical guide to hyperparameter tuning.","Google deep learning tuning playbook github"]
+  ],
+  project:["Training diagnostics notebook","Train a small CNN or MLP and instrument it: activation stats per layer, gradient norms, update-to-weight ratios. Break it on purpose (bad init, no norm, huge LR) and show what each failure looks like."],
+  checks:["Finished micrograd and makemore lectures with own code","Can explain why pre-LN transformers train more stably","Can read a loss curve and name likely causes of spikes or plateaus","Diagnostics notebook published","Can explain tensor strides and when an operation copies memory"]
+},
+{
+  id:"nlp", title:"NLP and text representations", weeks:"5 to 7 wks", ctx:"NLP",
+  goal:"Learn how text becomes numbers, from bag-of-words to transformer encoders, and how to choose, compare and monitor those representations.",
+  note:"<b>For you:</b> this phase and Phase 5 cover the language and multimodal skills used in clinical and mental-health research. Learn attention and transformers at the level CS224N teaches them; you build one yourself in Phase 4.",
+  topics:[
+    {g:"Core NLP", t:[
+      ["Text preprocessing and linguistic structure","NLP text preprocessing lemmatization POS tagging dependency parsing",[
+        ["Normalization","Lowercasing, Unicode normalization, and handling punctuation, numbers and abbreviations. Choices here change everything downstream."],
+        ["Stemming vs lemmatization","Chopping suffixes vs mapping words to dictionary forms (ran → run)."],
+        ["Part-of-speech tagging and dependency parsing","Grammatical roles and how words relate to each other. spaCy does both."],
+        ["Named entity recognition","Finding spans like drugs, symptoms and dates. Framed as token classification with BIO tags."],
+        ["Negation and uncertainty","'No signs of seizure' must not count as a seizure mention. NegEx and its successors handle this in clinical text."]],
+       "Why does 'denies suicidal ideation' break a naive keyword-based risk model, and how do you fix it?"],
+      ["Language modeling basics","n-gram language model smoothing perplexity",[
+        ["n-gram models","Predict the next word from the previous n−1 words. Smoothing handles sequences never seen in training."],
+        ["Perplexity","How surprised the model is by held-out text. Lower is better."],
+        ["From n-grams to neural LMs","Neural models share statistical strength across similar words and contexts."]],
+       "Why does an n-gram model need smoothing when a neural LM does not?"],
+      ["Text classification and evaluation","precision recall F1 macro micro imbalanced text classification",[
+        ["Baselines first","TF-IDF with logistic regression is a strong, fast baseline. Always run it."],
+        ["Precision, recall, F1","Macro averages treat classes equally; micro averages favor common classes."],
+        ["Class imbalance","Rare positive classes (e.g. crisis notes) need PR-AUC, threshold tuning and stratified splits."],
+        ["Calibration","Predicted probabilities should match observed rates, especially for clinical decisions."],
+        ["Generation metrics","BLEU and ROUGE measure word overlap; BERTScore uses embeddings; human or LLM judges assess quality."]],
+       "Why can a model with 95% accuracy be useless when only 3% of notes are positive?"],
+      ["Annotation and agreement","inter-annotator agreement Cohen's kappa annotation guidelines",[
+        ["Annotation guidelines","Written definitions and edge cases make labels consistent."],
+        ["Inter-annotator agreement","Cohen's kappa for two raters; Fleiss' kappa or Krippendorff's alpha for more. Agreement sets a ceiling on model performance."],
+        ["Adjudication","Resolving disagreements, and learning from where annotators disagree."],
+        ["Weak supervision","Labeling functions or LLMs produce noisy labels at scale; validate them against a gold set."]],
+       "Two clinicians agree on 80% of labels. Why is that not enough to call the labels reliable?"]
+    ]},
+    {g:"Representations", t:[
+      ["Sparse vs dense representations","sparse vs dense text representations TF-IDF embeddings",[
+        ["Bag of words and TF-IDF","Sparse vectors as wide as the vocabulary. Interpretable and strong on exact terms."],
+        ["BM25","The standard sparse ranking function for search."],
+        ["Dense embeddings","Short learned vectors where similar meanings sit close together, even with different words."],
+        ["Learned sparse models","SPLADE: sparse vectors with learned term weights. A middle ground."],
+        ["Hybrid search","Combine sparse and dense scores; each catches what the other misses."]],
+       "Give one case where TF-IDF beats a dense embedding and one where it loses."],
+      ["Distributional semantics and word embeddings","word2vec skip-gram negative sampling GloVe fastText",[
+        ["The distributional hypothesis","Firth: 'You shall know a word by the company it keeps.' The idea behind every embedding."],
+        ["word2vec","Skip-gram and CBOW, trained with negative sampling."],
+        ["GloVe and fastText","Co-occurrence matrix factorization; subword n-grams that handle misspellings and rare words."],
+        ["Vector arithmetic and bias","Analogies like king − man + woman ≈ queen, and the social biases embeddings absorb."],
+        ["Cosine vs Euclidean","Cosine compares direction and ignores length, which is why it is the default for text."]],
+       "Why does fastText handle misspelled clinical terms better than word2vec?"],
+      ["Contextual encoders","BERT masked language modeling encoder vs decoder encoder-decoder T5",[
+        ["From static to contextual","ELMo and BERT give a word different vectors in different sentences ('cold' the illness vs the temperature)."],
+        ["BERT pretraining","Masked language modeling over bidirectional context."],
+        ["Encoder, decoder, encoder-decoder","BERT for understanding, GPT for generation, T5 for text-to-text."],
+        ["Fine-tuning patterns","[CLS] classification, token classification for NER, span extraction."],
+        ["Domain models","BioBERT, PubMedBERT, ClinicalBERT, GatorTron. Domain pretraining helps on clinical text."],
+        ["Modern encoders","ModernBERT and other encoders with longer context limits."]],
+       "Why does a model pretrained on PubMed abstracts still struggle with clinical notes?"],
+      ["Sentence and document embeddings","Sentence-BERT SimCSE contrastive sentence embeddings MTEB",[
+        ["Why not just average BERT outputs","Raw BERT token vectors make poor sentence embeddings unless the model is trained for it."],
+        ["Sentence-BERT","Siamese fine-tuning so cosine similarity reflects meaning. The same idea as your Siamese CNN, applied to text."],
+        ["Contrastive training","SimCSE and hard negatives; modern embedding models such as E5, BGE and GTE."],
+        ["Pooling choices","CLS token, mean pooling, max pooling, attention pooling."],
+        ["MTEB","A benchmark comparing embedding models across many tasks."]],
+       "How would you adapt a general sentence embedding model to clinical notes?"],
+      ["Long documents and signal dilution","long document classification chunking BERT 512 tokens hierarchical attention",[
+        ["The 512-token limit","Classic BERT models see at most 512 tokens; clinical notes are often longer."],
+        ["Chunking","Split with overlap so sentences are not cut; chunk on sentence or section boundaries."],
+        ["Signal dilution","Averaging a long document into one vector washes out the few sentences that matter."],
+        ["Better aggregation","Max pooling over chunks, attention pooling, hierarchical models, or scoring chunks and keeping the top ones."],
+        ["Long-context models","Clinical-Longformer, BigBird, and long-context LLMs."],
+        ["Choosing the level","Compare word, sentence, chunk and document levels on the same task and splits, with confidence intervals."]],
+       "A 3,000-token note has one sentence about self-harm. Which encoding strategies would catch it, and which would miss it?"],
+      ["Comparing encoders","comparing embedding spaces Procrustes alignment CKA representation similarity",[
+        ["Spaces are not comparable","Vectors from two encoders live in different spaces; dimension 5 means different things in each."],
+        ["Compare on a downstream task","Same task, same splits, same classifier on top. The most defensible comparison."],
+        ["Compare neighborhoods","Do two encoders put the same documents near each other? Measure k-NN overlap or rank correlation of similarities."],
+        ["Align the spaces","Orthogonal Procrustes maps one space onto another using anchor points."],
+        ["Representation similarity","CKA and SVCCA compare what two models represent."],
+        ["Ensembles","Concatenate features or combine scores from sparse and dense encoders."]],
+       "A colleague says the TF-IDF vector and the BERT vector for the same note have cosine 0.2. What is wrong with that statement?"]
+    ]},
+    {g:"Clinical and real-world text", t:[
+      ["Clinical NLP, ontologies and entity linking","UMLS SNOMED CT entity linking clinical NLP scispaCy medspaCy",[
+        ["What an ontology is","Concepts plus typed relationships between them (is-a, part-of, treats)."],
+        ["UMLS, SNOMED CT, ICD-10, RxNorm","Standard vocabularies that give different phrasings one concept ID."],
+        ["Entity linking","Mapping a mention ('fits', 'sz', 'seizure') to a concept ID."],
+        ["Tools","scispaCy, medspaCy, cTAKES, MetaMap, QuickUMLS."],
+        ["Knowledge graphs","Link concepts from text to structured data such as labs, medications and wearable features."],
+        ["Clinical benchmarks","n2c2 / i2b2 shared tasks and MIMIC notes."]],
+       "How would you turn entities extracted from 10,000 notes into a small ontology that links to biometric data?"],
+      ["Semantic drift in language","semantic change diachronic word embeddings Hamilton",[
+        ["Semantic change","Word meanings shift over time and across communities."],
+        ["Diachronic embeddings","Train embeddings per time period, align them with Procrustes, and measure how far each word moved (Hamilton et al., 2016)."],
+        ["Contextual approaches","Compare the distribution of a word's contextual embeddings across periods."],
+        ["Clinical causes","New note templates, dictation software, guideline changes, new staff, new slang."],
+        ["Effect on models","A model trained on last year's notes can misread this year's."]],
+       "Design an experiment to show whether 'anxious' is used differently in 2020 notes than in 2025 notes."],
+      ["Dialect, domain and population shift","domain adaptation NLP dialect bias subgroup evaluation",[
+        ["Dialect variation","Different regions and communities describe the same thing in different words."],
+        ["Effect on models","Models trained on one population can underperform on another."],
+        ["Normalization to concepts","Map varied phrasings to the same UMLS concept."],
+        ["Domain-adaptive pretraining","Continue pretraining on in-domain text before fine-tuning."],
+        ["Subgroup evaluation","Report performance separately by region, age and other groups."]],
+       "How would you check whether your model works as well for Appalachian families as for Cincinnati families?"],
+      ["LLMs for NLP tasks","LLM zero-shot classification information extraction structured output",[
+        ["Zero- and few-shot","Prompt an LLM instead of training a classifier. Compare against fine-tuned baselines."],
+        ["Information extraction","Structured outputs (JSON) from free text."],
+        ["Embeddings from LLMs","Decoder-based embedding models, and when they beat encoders."],
+        ["Cost and privacy","Local open models when data cannot leave the hospital."]],
+       "When would a fine-tuned 100M-parameter encoder be a better choice than an LLM?"],
+      ["Interpreting text models","integrated gradients SHAP text classification attention is not explanation",[
+        ["Attention is not explanation","Attention weights do not reliably show why a model decided."],
+        ["Attribution","Integrated gradients and SHAP for token-level importance."],
+        ["Error analysis","Read the misclassified examples and group them by cause."]],
+       "A clinician asks why the model flagged a note. What would you show them?"]
+    ]}
+  ],
+  res:[
+    ["Jurafsky and Martin: Speech and Language Processing","Free online. Chapters on embeddings, transformers, NER and information extraction.","Jurafsky Martin Speech and Language Processing 3rd edition"],
+    ["Stanford CS224N: NLP with Deep Learning","Lectures and assignments. Its attention and transformer lectures cover what this phase needs.","Stanford CS224N"],
+    ["Hugging Face NLP Course","Hands-on transformers for NLP tasks.","Hugging Face NLP course"],
+    ["Papers: word2vec, BERT, Sentence-BERT, ClinicalBERT, Hamilton et al. 2016","Core reading.","Diachronic Word Embeddings Reveal Statistical Laws of Semantic Change"],
+    ["Sentence Transformers docs","Training and using embedding models.","sentence-transformers documentation"]
+  ],
+  project:["Clinical text encoder study","On a public clinical text dataset (e.g. MTSamples), compare TF-IDF, a general sentence embedding model and a clinical BERT on one classification task. Test document-level vs chunk-level encoding, show signal dilution on long notes, and check for drift by splitting on time or source. Report results with confidence intervals."],
+  checks:["Can explain why vectors from two encoders can't be compared directly, and three ways to compare encoders","Can explain signal dilution and two ways to avoid it","Built a TF-IDF baseline and a fine-tuned encoder on the same task","Can describe a concrete method to detect semantic drift","Published the encoder study"]
+},
+{
+  id:"p2", step:"STEP 2", title:"Transformers and LLMs from scratch", weeks:"8 to 10 wks", ctx:"transformer LLM",
+  goal:"Build, train and understand a GPT-style language model end to end, from tokenizer to sampling.",
+  note:"<b>For you:</b> Phase 3 gave you the concepts; here you build everything. CME 295 for concepts, then CS336. CS336's assignments are the single best preparation for lab work.",
+  topics:[
+    {g:"Attention", t:[
+      ["Scaled dot-product attention","scaled dot product attention from scratch",[
+        ["Q, K, V projections","Each token emits a query, key and value. Attention weights come from query-key dot products."],
+        ["Why divide by √d_k","Dot products of random vectors grow with dimension; scaling keeps softmax out of saturation."],
+        ["Complexity","O(T²·d) compute and O(T²) memory for the score matrix. The reason long context is expensive."],
+        ["Attention as soft lookup","A differentiable dictionary: keys index, values are retrieved, weighted by similarity."]],
+       "Implement causal self-attention from memory and state its FLOPs for sequence length T and width d."],
+      ["Multi-head attention and its variants","grouped query attention multi-head latent attention",[
+        ["Multi-head attention","Split d into h heads of size d/h; each attends independently; an output projection mixes them."],
+        ["MQA and GQA","Share keys and values across groups of query heads to shrink the KV cache."],
+        ["Multi-head latent attention (MLA)","DeepSeek's approach: compress keys and values into a small latent vector, shrinking the KV cache further."],
+        ["Sliding window and sparse attention","Each token attends to a local window. Often mixed with some full-attention layers."],
+        ["Linear attention","Kernel tricks that make attention O(T), usually at some quality cost."]],
+       "How much smaller is the KV cache with 8 KV heads instead of 64 query heads?"],
+      ["Masking","causal mask padding mask document masking packed sequences",[
+        ["Causal mask","Each position sees only earlier positions, so one forward pass trains on every next-token prediction."],
+        ["Padding mask","Ignore padding tokens in attention and in the loss."],
+        ["Document masking","When packing several documents into one sequence, stop tokens attending across document boundaries."]],
+       "Why does one forward pass over a 1,024-token sequence give 1,024 training examples?"],
+      ["Positional information","RoPE rotary position embedding explained YaRN",[
+        ["Learned and sinusoidal positions","The original approaches, added to token embeddings."],
+        ["RoPE","Rotates pairs of query and key dimensions by position-dependent angles, so their dot product depends on relative position."],
+        ["ALiBi","Adds a distance-based penalty to attention scores."],
+        ["Context extension","Position interpolation, NTK-aware scaling and YaRN let a model run at longer context than it was trained on."]],
+       "Show why the RoPE dot product between positions m and n depends only on m − n."]
+    ]},
+    {g:"The transformer block", t:[
+      ["Block anatomy and the residual stream","transformer residual stream mathematical framework",[
+        ["Pre-LN block","x = x + Attn(Norm(x)); x = x + MLP(Norm(x))."],
+        ["Residual stream view","Every layer reads from and writes to a shared stream. The basis of mechanistic interpretability."],
+        ["MLP as key-value memory","MLP layers store much of a model's factual knowledge."],
+        ["Weight tying","Sharing input embedding and output projection weights. Common in small models."]],
+       "Count the parameters of GPT-2 small from its config (12 layers, d = 768, vocab 50,257)."],
+      ["Mixture of Experts","mixture of experts router load balancing loss",[
+        ["Router and top-k","A small network picks k experts per token. Only those run."],
+        ["Total vs active parameters","An MoE can have 10× more parameters than it uses per token."],
+        ["Load balancing","Auxiliary losses or bias adjustments stop all tokens going to a few experts."],
+        ["Capacity factor and token dropping","Each expert has a token budget per batch; overflow tokens get dropped or rerouted."],
+        ["Fine-grained and shared experts","DeepSeekMoE: many small experts plus always-on shared experts."]],
+       "Why does MoE reduce training FLOPs but not memory needed to serve the model?"]
+    ]},
+    {g:"Tokenization and data", t:[
+      ["Tokenization","byte pair encoding tokenizer from scratch",[
+        ["Byte-level BPE","Start from 256 bytes and repeatedly merge the most frequent adjacent pair."],
+        ["Pre-tokenization","A regex splits text (words, numbers, whitespace) before BPE merges."],
+        ["Vocab size tradeoffs","Bigger vocab means shorter sequences but bigger embedding and output layers."],
+        ["Special tokens","Beginning and end of text, chat role markers, tool-call markers."],
+        ["Tokenization artifacts","Number splitting hurts arithmetic; glitch tokens; whitespace sensitivity."]],
+       "Implement BPE training and encoding. Why do LLMs struggle to count letters in words?"],
+      ["Pretraining data pipelines","FineWeb dataset paper deduplication quality filtering",[
+        ["Common Crawl","The raw web source behind most pretraining corpora."],
+        ["Text extraction","Pulling clean text from HTML (e.g. trafilatura) is a major quality lever."],
+        ["Quality filtering","Heuristics plus classifiers (FineWeb-Edu trained a classifier on LLM-graded educational value)."],
+        ["Deduplication","Exact and fuzzy (MinHash with locality-sensitive hashing). Duplicates waste compute and increase memorization."],
+        ["Data mixtures and annealing","Choosing the ratio of web, code, math and books, and upweighting high-quality data at the end of training."],
+        ["Sequence packing","Concatenating documents to fill fixed-length sequences without padding."]],
+       "How does MinHash estimate Jaccard similarity between two documents?"]
+    ]},
+    {g:"Training and scaling", t:[
+      ["LM training recipe","GPT-3 training hyperparameters AdamW beta2 0.95",[
+        ["Typical settings","AdamW with β = (0.9, 0.95), weight decay 0.1, gradient clip 1.0, warmup then decay."],
+        ["Batch size in tokens","Large models train with batches of millions of tokens, often ramped up during training."],
+        ["Loss curves","Expect fast early drop, then slow power-law-like improvement."],
+        ["Downstream evals during training","Track HellaSwag or similar alongside validation loss."]],
+       "Your validation loss improves but HellaSwag stays flat. What could explain that?"],
+      ["Scaling laws","Chinchilla scaling laws compute optimal explained",[
+        ["Power laws","Loss falls as a power law in parameters, data and compute (Kaplan et al.)."],
+        ["Chinchilla","Compute-optimal training uses about 20 tokens per parameter."],
+        ["Over-training for inference","Smaller models trained far past Chinchilla are cheaper to serve (the Llama approach)."],
+        ["Fitting your own laws","Train a ladder of small models and extrapolate before spending big compute."],
+        ["Data-constrained scaling","What happens when you must repeat data for multiple epochs."]],
+       "With 1e21 FLOPs, roughly what model size and token count does Chinchilla suggest?"],
+      ["Stability and hyperparameter transfer","muP maximal update parametrization explained",[
+        ["z-loss","Penalizes large output logits to keep softmax stable."],
+        ["Logit soft-capping","Squashes attention or output logits with tanh."],
+        ["μP","A parametrization where optimal hyperparameters found on small models transfer to large ones."],
+        ["Embedding and output layer LRs","Often need different learning rates from the hidden layers."]],
+       "Why does tuning hyperparameters on a small model fail without μP or similar?"]
+    ]},
+    {g:"Generation and behavior", t:[
+      ["Decoding","top-p nucleus sampling min-p temperature explained",[
+        ["Greedy and beam search","Deterministic decoding. Beam search is rare for chat models."],
+        ["Temperature","Divides logits before softmax. Lower is sharper, higher is more random."],
+        ["Top-k, top-p, min-p","Truncate the distribution to likely tokens before sampling."],
+        ["Repetition penalties","Down-weight tokens already generated."]],
+       "Implement top-p sampling in a few lines of PyTorch."],
+      ["KV cache","KV cache transformer explained",[
+        ["What is cached","Keys and values of all previous tokens for every layer, so each new token only computes its own."],
+        ["Prefill vs decode","Processing the prompt in parallel, then generating one token at a time."],
+        ["Memory cost","Grows linearly with sequence length and batch size; often larger than the weights for long contexts."]],
+       "Compute the KV cache size for a 32-layer model, 8 KV heads of dim 128, 32k context, batch 1, BF16."],
+      ["In-context learning and evaluation of base models","induction heads in-context learning",[
+        ["Few-shot prompting","Base models follow patterns shown in the prompt."],
+        ["Induction heads","Attention circuits that copy patterns. Linked to in-context learning."],
+        ["Log-likelihood evals","Score multiple-choice options by the model's probability rather than by generating text."]],
+       "Why does scoring by log-likelihood work for base models that cannot yet follow instructions?"]
+    ]}
+  ],
+  res:[
+    ["Stanford CME 295: Transformers and LLMs","Concept course. Start here.","Stanford CME 295 Transformers Large Language Models"],
+    ["Stanford CS336: Language Modeling from Scratch","Build tokenizer, model, training, data, alignment yourself.","Stanford CS336 language modeling from scratch"],
+    ["Let's build GPT and Let's reproduce GPT-2 (Karpathy)","Follow along, then rebuild without the video.","Karpathy let's reproduce GPT-2 124M"],
+    ["The Annotated Transformer","Paper plus code, line by line.","The Annotated Transformer Harvard NLP"],
+    ["Papers: Attention Is All You Need, GPT-2, GPT-3, Chinchilla, Llama 3, DeepSeek-V3","Read in that order.","Attention Is All You Need paper"],
+    ["A Mathematical Framework for Transformer Circuits","The residual stream view, from Anthropic.","A Mathematical Framework for Transformer Circuits"],
+    ["modded-nanogpt speedrun","See how experts squeeze training efficiency.","modded-nanogpt speedrun github"]
+  ],
+  project:["GPT-2 small from scratch","Write your own BPE tokenizer and GPT-2 (124M) in plain PyTorch. Train it on FineWeb-Edu on a rented GPU. Report loss curves, HellaSwag score, and three ablations (e.g. RoPE vs learned positions, RMSNorm vs LayerNorm, SwiGLU vs GELU)."],
+  checks:["Can implement multi-head attention from memory in under 20 minutes","Own BPE tokenizer matches a reference on test strings","Trained a GPT-2-class model to a sensible loss","Wrote up ablations with plots","Can count a model's parameters and KV cache size from its config"]
+},
+{
+  id:"mm", title:"Multimodal and real-world data", weeks:"4 to 6 wks", ctx:"multimodal machine learning",
+  goal:"Learn to combine messy, irregular, partly missing data from different sources, and to keep models reliable as the world changes.",
+  note:"<b>For you:</b> this is the core of multimodal clinical work: EHR, wearables, speech and video together. Your EEG, sensor fusion and EKF background gives you a head start on the time-series side.",
+  topics:[
+    {g:"Fusion", t:[
+      ["Multimodal learning foundations","Multimodal Machine Learning A Survey and Taxonomy Baltrusaitis",[
+        ["The five challenges","Representation, translation, alignment, fusion and co-learning (Baltrušaitis, Ahuja and Morency)."],
+        ["Joint vs coordinated representations","One shared space, or separate spaces linked by a constraint, as in CLIP."],
+        ["Modality imbalance","Models lean on the easiest modality and under-use the others."],
+        ["Modality dropout","Randomly drop modalities during training so the model copes when one is missing."]],
+       "Why might a multimodal model perform worse than its best single-modality model?"],
+      ["Fusion strategies","early intermediate late fusion multimodal deep learning",[
+        ["Early fusion","Concatenate raw features. Simple, but needs aligned and complete data."],
+        ["Intermediate (joint) fusion","Learn a representation per modality, then combine. Often reported to perform well."],
+        ["Late fusion","Separate models, combined predictions. Robust to missing modalities and easy to interpret."],
+        ["Cross-attention fusion","One modality attends to another. This is how vision-language models connect image and text."],
+        ["Choosing for a project","Sparse or often-missing sources favor late or intermediate fusion with modality dropout."]],
+       "Justify a fusion strategy for EHR + smartwatch + avatar conversations when 40% of patients have no smartwatch."]
+    ]},
+    {g:"Real-world data", t:[
+      ["Aligning irregular, multi-rate data","as-of join lookback window feature engineering irregular time series",[
+        ["Different rates","EHR entries are sparse and irregular; wearables stream every second; conversations are episodic."],
+        ["As-of joins","Attach the latest available value at each prediction time, never a future one."],
+        ["Lookback windows","Summary features over a window: mean resting heart rate over 3 days, hours slept last night."],
+        ["Leakage through time","Using data recorded after the prediction time inflates results."],
+        ["Irregular time-series models","GRU-D, time-aware attention, and models that take time gaps as input."]],
+       "Design features linking 6 months of smartwatch data to each EHR visit without leaking the future."],
+      ["Measurement error and uncertainty","reliability validity measurement error propagation calibration conformal prediction",[
+        ["Reliability vs validity","Is the measure consistent? Does it measure what you think?"],
+        ["Error propagation","How noise in each source carries into the final prediction."],
+        ["Calibration","Reliability diagrams and the Brier score."],
+        ["Conformal prediction","Prediction sets with guaranteed coverage."],
+        ["Provenance","Track where each value came from and how much to trust it."]],
+       "How would you give a clinician an error estimate alongside each fused prediction?"],
+      ["Missing data","MCAR MAR MNAR multiple imputation informative missingness EHR",[
+        ["MCAR, MAR, MNAR","Missing completely at random, at random given observed data, or not at random. Each needs different handling."],
+        ["Informative missingness","In EHR, a missing test often means the doctor didn't think it was needed. Missingness itself is a signal."],
+        ["Missing indicators","Add a flag for each missing value."],
+        ["Multiple imputation","MICE: impute several times and pool the results to reflect uncertainty."],
+        ["Native handling","Gradient-boosted trees learn which direction to send missing values."]],
+       "Why can imputing missing lab values with the mean make a clinical model worse?"],
+      ["Synthetic data","synthetic health data Synthea SDV CTGAN privacy evaluation",[
+        ["Uses","Development, data sharing, augmenting small datasets, testing pipelines."],
+        ["Generators","Synthea (rule-based synthetic EHR), SDV and CTGAN (learned tabular), LLM-generated text."],
+        ["Evaluation","Fidelity (looks real), utility (train on synthetic, test on real), and privacy."],
+        ["Risks","Memorized real records, missing rare cases, amplified bias."],
+        ["Differential privacy","Formal privacy guarantees at some cost to fidelity."]],
+       "How would you show that synthetic patient data is useful without being a copy of real patients?"],
+      ["Drift: types and detection","data drift concept drift detection KS test PSI MMD monitoring",[
+        ["Types","Covariate (input) drift, label shift, and concept drift (the input-output relationship changes)."],
+        ["Univariate tests","Kolmogorov-Smirnov test and population stability index per feature."],
+        ["Multivariate tests","Maximum mean discrepancy, or train a classifier to tell old data from new."],
+        ["Embedding drift","Compare distributions of text embeddings between periods."],
+        ["Performance monitoring","Track metrics over time once labels arrive; drift tests are early warnings."],
+        ["Why drift happens","New templates, devices, populations, guidelines or staff. Always look for the cause."]],
+       "Your model's AUC dropped from 0.86 to 0.78 over six months. Walk through how you find the cause."]
+    ]},
+    {g:"Speech, face and affect", t:[
+      ["Speech and prosody","openSMILE eGeMAPS prosodic features pauses speech rate",[
+        ["Prosodic features","Pauses, speech rate, pitch (F0), energy and voice quality (jitter, shimmer)."],
+        ["openSMILE and eGeMAPS","A standard toolkit and an 88-feature set designed for affective research."],
+        ["Pause analysis","Pause length and frequency need good voice activity detection and timestamps."],
+        ["Speech models","Whisper for transcripts with timestamps; wav2vec 2.0 and HuBERT for learned speech representations."],
+        ["Diarization","Separating who spoke when (e.g. pyannote), needed before analyzing one speaker."]],
+       "How would you measure 'the silence between words' in a recorded interview?"],
+      ["Facial behavior and within-person comparison","OpenFace facial action units affective computing",[
+        ["Facial action units","FACS codes for muscle movements, e.g. AU12 lip corner puller, AU4 brow lowerer."],
+        ["OpenFace","Extracts action units, gaze and head pose from video."],
+        ["Within-person baselines","Compare each child to their own baseline, not to other children."],
+        ["Paired designs","The same child with an avatar vs a clinician; mixed-effects models for repeated measures."],
+        ["Which modality adds most","Ablate face, voice and language and compare."],
+        ["Linguistic markers","Hedging, deflection, pronoun use, short answers."]],
+       "Design a study to measure whether children disclose more to an avatar than to a clinician."]
+    ]},
+    {g:"Health data in practice", t:[
+      ["PHI, de-identification and privacy","PHI de-identification clinical text Philter Presidio HIPAA Safe Harbor",[
+        ["PHI and HIPAA","The 18 Safe Harbor identifiers and what counts as identifiable."],
+        ["De-identification tools","Philter and Presidio; measure their recall on your own notes."],
+        ["Local models","Run and fine-tune models inside the secure environment, with no data sent to external APIs."],
+        ["Memorization","Models can memorize and repeat training text; test for it."],
+        ["Federated learning","Train across sites without moving the data."]],
+       "Your encoder will be fine-tuned on notes containing names and addresses. What do you do before, during and after training?"],
+      ["Documents to text","OCR Tesseract PDF table extraction Pandoc document parsing",[
+        ["Digital vs scanned PDFs","Digital PDFs have a text layer; scans need OCR."],
+        ["OCR","Tesseract and newer document models; check error rates on your own documents."],
+        ["Layout and tables","Docling, Unstructured and dedicated table extraction tools."],
+        ["Pandoc","Converts between document formats."]],
+       "How would you turn 5,000 scanned referral letters into clean text with tables intact?"],
+      ["Open clinical and affective datasets","MIMIC-IV DAIC-WOZ CHB-MIT TUH EEG corpus datasets",[
+        ["MIMIC-IV","ICU EHR data and notes. Requires credentialed access."],
+        ["DAIC-WOZ","Clinical interviews with the virtual interviewer 'Ellie': audio, facial features and transcripts."],
+        ["CHB-MIT and TUH EEG","Pediatric and large-scale EEG seizure datasets."],
+        ["WESAD","Wearable stress and affect detection with multiple physiological sensors."],
+        ["Finding more","PhysioNet, data papers, and the dataset sections of related work."]],
+       "Name six open datasets you could use to prototype a seizure or mental-health forecasting model."],
+      ["Clinical validation","external validation clinical prediction model TRIPOD subgroup calibration",[
+        ["Validation ladder","Retrospective, external, silent (shadow) deployment, then prospective."],
+        ["External validation","Test at a different site or time period."],
+        ["Reporting standards","TRIPOD and TRIPOD+AI."],
+        ["Fairness checks","Subgroup performance and calibration."]],
+       "Why does a model validated on a random split overestimate how well it will perform next year?"]
+    ]}
+  ],
+  res:[
+    ["Multimodal Machine Learning: A Survey and Taxonomy","Baltrušaitis, Ahuja and Morency, 2019.","Multimodal Machine Learning: A Survey and Taxonomy"],
+    ["Flexible Imputation of Missing Data (van Buuren)","Free online book.","Flexible Imputation of Missing Data van Buuren"],
+    ["A Survey on Concept Drift Adaptation (Gama et al.)","The standard drift reference.","A Survey on Concept Drift Adaptation Gama"],
+    ["Multimodal fusion reviews","Huang et al. 2020, Guarrasi et al. 2024, Acosta et al. 2022.","Guarrasi systematic review intermediate fusion multimodal deep learning biomedical"],
+    ["openSMILE, OpenFace and Whisper docs","The feature extraction tools.","openSMILE eGeMAPS documentation"]
+  ],
+  project:["Multimodal fusion with missing modalities","On a public multimodal dataset (e.g. WESAD), build early, intermediate and late fusion models. Remove modalities at random at test time and compare how each degrades. Add a drift test by holding out later sessions or different subjects, and report calibration."],
+  checks:["Can justify a fusion strategy for sparse plus continuous data","Can explain MCAR, MAR and MNAR with clinical examples","Can name a drift detection method and the causes of drift in clinical notes","Extracted prosodic features with openSMILE from real audio","Published the fusion project"]
+},
+{
+  id:"p3", step:"STEP 3", title:"GPU performance and distributed training", weeks:"12 to 14 wks", ctx:"GPU",
+  goal:"Understand how training actually runs on hardware and across many GPUs. This is the most in-demand and least common skill set.",
+  note:"<b>For you:</b> every topic here is core unless it is marked Deep. Deep topics matter mainly if you pick the inference and infra track. Start with the distributed computing foundations even if parallelism feels unfamiliar: the first six project steps need at most two GPUs, and step one runs on a laptop CPU.",
+  topics:[
+    {g:"GPU hardware", t:[
+      ["GPU architecture","GPU architecture streaming multiprocessor warp tensor core",[
+        ["Streaming multiprocessors (SMs)","Independent processors; an H100 SXM has 132. Work is split into blocks scheduled onto SMs."],
+        ["Warps and SIMT","32 threads execute the same instruction together. Divergent branches serialize."],
+        ["Tensor cores","Dedicated matmul units. Nearly all the advertised FLOPs come from them, only for matmul-shaped work."],
+        ["Memory hierarchy","Registers, shared memory/L1 (up to ~228 KB per SM on H100), L2, then HBM. Each level is much slower and larger."]],
+       "Why can an elementwise add never reach more than a tiny fraction of an H100's advertised FLOPs?"],
+      ["Roofline and the three regimes","Making Deep Learning Go Brrrr From First Principles",[
+        ["Arithmetic intensity","FLOPs per byte moved from memory. Elementwise ops are below 1; large matmuls are in the hundreds."],
+        ["Ridge point","Peak FLOPs ÷ memory bandwidth (~300 on H100). Below it you are memory-bound."],
+        ["Compute, memory, overhead","Horace He's three regimes. Small models are often overhead-bound by Python and kernel launches."],
+        ["Shape effects","Tile and wave quantization: dimensions that are multiples of 64 or 128 run noticeably faster."]],
+       "Is a (4096×4096)·(4096×1) matmul compute-bound or memory-bound on an H100? Show the arithmetic."]
+    ]},
+    {g:"Writing fast code", t:[
+      ["CUDA programming model","CUDA programming tutorial memory coalescing shared memory",[
+        ["Grids, blocks, threads","How work is indexed and mapped onto the hardware."],
+        ["Memory coalescing","Adjacent threads should read adjacent addresses so loads combine into few transactions."],
+        ["Shared memory and bank conflicts","Fast on-chip scratchpad shared within a block; conflicting accesses serialize."],
+        ["Occupancy","How many warps are resident per SM; limited by registers and shared memory per thread."],
+        ["Streams and synchronization","Overlap compute with data transfers; __syncthreads within a block."]],
+       "Write a naive CUDA matmul, then explain why tiling with shared memory makes it several times faster."],
+      ["Kernel fusion and torch.compile","torch.compile inductor kernel fusion explained",[
+        ["Why fusion helps","Several elementwise ops in one kernel read and write memory once instead of once per op."],
+        ["torch.compile","Dynamo captures the graph; Inductor generates fused Triton kernels."],
+        ["Graph breaks","Python constructs that stop compilation; find them with TORCH_LOGS."],
+        ["CUDA graphs","Record a sequence of kernels once and replay it to remove launch overhead."]],
+       "Why does fusing GELU + bias + dropout give a speedup even though the FLOPs are unchanged?"],
+      ["Triton","OpenAI Triton tutorial fused softmax matmul",[
+        ["Block-level programming","You write code for a block of data; Triton handles threads within it."],
+        ["Program IDs and masking","tl.program_id picks the block; masks guard out-of-bounds loads."],
+        ["Autotuning","Try several block sizes and warp counts automatically."],
+        ["Benchmarking","triton.testing.do_bench and comparing achieved bandwidth to the hardware peak."]],
+       "Write a fused softmax kernel in Triton and report its achieved memory bandwidth."],
+      ["FlashAttention","FlashAttention explained tiling online softmax",[
+        ["The problem","Standard attention writes the T×T score matrix to HBM, which dominates runtime."],
+        ["Tiling","Load blocks of Q, K and V into SRAM and never write the full score matrix."],
+        ["Online softmax","Rescale partial results as each new block's maximum is seen."],
+        ["Recomputation in backward","Recompute attention scores instead of storing them: more FLOPs, far less memory traffic."],
+        ["FA2 and FA3","FA2 improves parallelism over the sequence; FA3 uses Hopper asynchrony and FP8."]],
+       "FlashAttention does more FLOPs than standard attention. Why is it faster?"],
+      ["Profiling","pytorch profiler trace nsight systems nsight compute",[
+        ["torch.profiler","Per-op timings and a Chrome trace to see gaps between kernels."],
+        ["Nsight Systems","Whole-program timeline: CPU, GPU, communication, data loading."],
+        ["Nsight Compute","Per-kernel deep dive: achieved bandwidth, occupancy, stalls."],
+        ["Memory snapshots","torch.cuda.memory._record_memory_history to see what holds memory at the peak."]],
+       "In a trace you see many short GPU kernels with gaps between them. What is the bottleneck and how do you fix it?"],
+      ["Production kernel engineering","CUTLASS CuTe ThunderKittens tensor core programming TMA warp specialization",[
+        ["Tensor core programming","Using matrix-multiply (MMA) instructions directly instead of going through libraries."],
+        ["CUTLASS and CuTe","NVIDIA's templates for high-performance matmuls and data layouts."],
+        ["ThunderKittens","A simpler library of tile primitives for writing fast kernels."],
+        ["Hopper features","Async copies with TMA, warp specialization, and FP8 tensor cores."],
+        ["Matching cuBLAS","Work through Simon Boehm's guide until your matmul gets close to cuBLAS speed."]],
+       "Why is a matmul that uses tensor cores still slow if its loads are not coalesced?","deep"]
+    ]},
+    {g:"Distributed computing foundations", t:[
+      ["Processes, ranks and launching","torchrun rank world size local rank init_process_group",[
+        ["One process per GPU","Distributed PyTorch runs a separate Python process for each GPU, not threads."],
+        ["Rank, local rank, world size","Rank is a process's global ID, local rank its GPU index on that machine, world size the total number of processes."],
+        ["torchrun","Launches the processes and sets RANK, LOCAL_RANK, WORLD_SIZE, MASTER_ADDR and MASTER_PORT for each one."],
+        ["init_process_group","Connects the processes. NCCL backend for GPUs; Gloo for CPUs, which also lets you practice on a laptop."],
+        ["Process groups","Subsets of ranks that communicate together. Data, tensor and pipeline parallel groups are built this way."]],
+       "On 2 nodes with 8 GPUs each, what are the rank, local rank and world size of the third GPU on the second node?"],
+      ["The SPMD model","SPMD single program multiple data distributed training pytorch",[
+        ["Same program, different data","Every rank runs the same script; behavior differs only through its rank and its data shard."],
+        ["DistributedSampler","Gives each rank a different, non-overlapping slice of the dataset each epoch."],
+        ["Rank-0 duties","Logging, evaluation and checkpoint writing usually happen on one rank only."],
+        ["Collectives must match","Every rank must call the same collectives in the same order, or the job hangs."]],
+       "Why does an all-reduce inside an 'if rank == 0:' block freeze the whole job?"],
+      ["Communication cost model","alpha beta communication model latency bandwidth overlap computation communication",[
+        ["Latency and bandwidth","Time ≈ α + n/β: a fixed startup cost plus message size divided by bandwidth (the alpha-beta model)."],
+        ["Small vs large messages","Many small messages are latency-bound. That is why DDP groups gradients into buckets."],
+        ["Overlap","Hide communication behind computation, e.g. all-reduce the last layers' gradients while earlier layers are still in backward."],
+        ["Compute-to-communication ratio","More compute per byte sent scales better; larger per-GPU batches help data parallelism."]],
+       "Why is all-reducing 1,000 separate 1 MB tensors much slower than one 1 GB tensor?"],
+      ["Hardware topology","nvidia-smi topo NVLink NVSwitch PCIe InfiniBand GPU topology",[
+        ["PCIe","The general-purpose bus; much slower than NVLink for GPU-to-GPU traffic."],
+        ["NVLink and NVSwitch","Direct high-bandwidth GPU links; NVSwitch connects all 8 GPUs in a node at full speed."],
+        ["InfiniBand and RoCE","Networks between nodes; training clusters usually have one network card per GPU."],
+        ["Reading the topology","nvidia-smi topo -m shows how each pair of GPUs is connected."],
+        ["GPUDirect RDMA","GPUs send data over the network without copying through CPU memory."]],
+       "You rent two 8-GPU nodes. Which traffic should stay inside a node, and why?"],
+      ["Scaling efficiency","Amdahl's law strong scaling weak scaling efficiency GPU",[
+        ["Amdahl's law","The part of the work that can't be parallelized limits the total speedup."],
+        ["Strong vs weak scaling","The same problem on more GPUs, vs a bigger problem on more GPUs."],
+        ["Scaling efficiency","Throughput on N GPUs ÷ (N × throughput on one). Plot it as you add GPUs."],
+        ["Global batch size limits","More data-parallel GPUs means a bigger batch; past the critical batch size, extra GPUs stop helping."]],
+       "Going from 8 to 64 GPUs gives 5.6× the throughput. What is the scaling efficiency, and where would you look for the loss?"]
+    ]},
+    {g:"Memory: GPU and host", t:[
+      ["Where training memory goes","LLM training memory breakdown activations optimizer states",[
+        ["Weights, gradients, optimizer","Mixed-precision Adam: 2 (BF16 weights) + 2 (grads) + 4 (FP32 master) + 8 (moments) = 16 bytes per parameter."],
+        ["Activations","Scale with batch × sequence × hidden × layers. Often the largest term for long sequences."],
+        ["Activation checkpointing","Store only some activations and recompute the rest: about 33% more compute for large savings."],
+        ["Selective checkpointing","Recompute only cheap-to-recompute, memory-heavy parts like attention scores."],
+        ["Allocator fragmentation","PyTorch's caching allocator; expandable segments reduce out-of-memory errors from fragmentation."]],
+       "Estimate total training memory for a 1B-parameter model with Adam, before activations."],
+      ["OOM debugging workflow","CUDA out of memory debugging pytorch memory snapshot max_memory_allocated",[
+        ["Reading the error","'Tried to allocate X', plus allocated vs reserved memory, tells you whether you are truly full or fragmented."],
+        ["Find the peak","Track torch.cuda.max_memory_allocated per stage; the peak is often in backward or the first optimizer step, not the forward pass."],
+        ["Memory snapshots","Record allocation history and open it in PyTorch's memory visualizer to see which tensors hold memory."],
+        ["Fragmentation","PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, and why torch.cuda.empty_cache() rarely fixes a real OOM."],
+        ["Hidden culprits","Accumulating loss instead of loss.item(), evaluation without no_grad, huge logits tensors, stray references to old tensors."],
+        ["Variable shapes","The longest batch sets the peak. Test with the maximum sequence length first."]],
+       "Training runs for 2,000 steps, then fails with an OOM. List three likely causes and how you would tell them apart."],
+      ["Memory-saving techniques","reduce GPU memory LLM training 8-bit optimizer ZeRO offload chunked cross entropy",[
+        ["Mixed precision","BF16 for compute, FP32 master weights for updates."],
+        ["Activation checkpointing and offloading","Recompute activations, or park them in CPU memory until backward needs them."],
+        ["Leaner optimizers","8-bit Adam (bitsandbytes) and Adafactor keep much less optimizer state."],
+        ["CPU and NVMe offload","ZeRO-Offload and ZeRO-Infinity move optimizer states or parameters off the GPU, trading speed for memory."],
+        ["Chunked cross-entropy","Compute the loss over chunks of the vocabulary so the full logits tensor never exists at once."],
+        ["Meta-device initialization","Build a huge model without allocating its weights, then load each shard directly onto its GPU."],
+        ["Gradient accumulation","Small micro-batches with the same effective batch size; it costs time, not quality."],
+        ["Finding the largest batch","Binary search on batch size at the maximum sequence length."]],
+       "You need to fine-tune a 7B model on one 24 GB GPU. Which techniques would you apply, in what order, and what does each cost?"],
+      ["Host RAM and data loading","DataLoader memory leak copy on read num_workers dev shm docker",[
+        ["Copy-on-read","DataLoader workers slowly duplicate a dataset stored as Python lists or dicts because of reference counting. Use NumPy arrays or memory-mapped files."],
+        ["/dev/shm in Docker","Workers pass batches through shared memory, and Docker's small default causes crashes. Fix with --shm-size or --ipc=host."],
+        ["Loading checkpoints","safetensors, memory-mapping and low_cpu_mem_usage avoid holding two copies of a model in RAM."],
+        ["Pinned memory","Page-locked RAM speeds up transfers to the GPU, but too much of it destabilizes the machine."],
+        ["Offload needs RAM","CPU offload of optimizer states can need hundreds of GB of system memory."],
+        ["The Linux OOM killer","Kills a process with no Python traceback. Check dmesg, and monitor RAM with free and htop."]],
+       "Your job dies after an hour with no error message. How do you confirm it was the Linux OOM killer, and what do you check next?"]
+    ]},
+    {g:"Parallelism", t:[
+      ["Collective communication","NCCL all-reduce reduce-scatter all-gather ring algorithm",[
+        ["The collectives","all-reduce, reduce-scatter, all-gather, broadcast, all-to-all."],
+        ["all-reduce = reduce-scatter + all-gather","The identity that makes ZeRO's communication cost equal to DDP's."],
+        ["Ring algorithm cost","Each GPU sends 2(N−1)/N × the data size, nearly independent of N."],
+        ["Bandwidth tiers","NVLink within a node is roughly 10 to 20× faster than InfiniBand between nodes."]],
+       "How long does all-reducing 2 GB of gradients take across 8 GPUs at 400 GB/s effective bandwidth?"],
+      ["Data parallelism, ZeRO and FSDP","ZeRO stages FSDP2 explained",[
+        ["DDP","Every GPU holds a full model copy; gradients are all-reduced in buckets, overlapped with backward."],
+        ["ZeRO-1, 2, 3","Shard optimizer states, then gradients, then parameters across data-parallel ranks."],
+        ["FSDP","PyTorch's ZeRO-3: all-gather parameters just before use, free them after, reduce-scatter gradients."],
+        ["Prefetching","Start the next layer's all-gather while the current layer computes."],
+        ["HSDP","Shard within a node, replicate across nodes, to keep heavy traffic on NVLink."]],
+       "With FSDP across 64 GPUs, how much memory does each GPU need for a 70B model's weights, grads and Adam states?"],
+      ["Tensor and sequence parallelism","Megatron tensor parallelism column row parallel",[
+        ["Column- and row-parallel linears","Split the MLP's first matmul by columns and second by rows so only one all-reduce is needed."],
+        ["Attention heads across GPUs","Each GPU computes a subset of heads."],
+        ["Sequence parallelism","Shard LayerNorm and dropout activations along the sequence to save memory."],
+        ["Why it stays in a node","It needs communication inside every layer, so it requires NVLink bandwidth."]],
+       "Why does Megatron split the first MLP matmul by columns and the second by rows?"],
+      ["Pipeline parallelism","pipeline parallelism 1F1B interleaved zero bubble",[
+        ["Stages and micro-batches","Split layers across GPUs; feed many micro-batches to keep stages busy."],
+        ["Bubble","Idle time at the start and end, a fraction (p−1)/(m+p−1) of the step."],
+        ["1F1B and interleaving","Schedules that reduce memory and bubble size."],
+        ["Zero-bubble schedules","Split backward into input and weight gradients to fill the gaps."]],
+       "With 8 pipeline stages, how many micro-batches keep the bubble under 10%?"],
+      ["Context and expert parallelism","ring attention context parallelism expert parallelism all-to-all",[
+        ["Context parallelism","Split one long sequence across GPUs; pass K and V blocks around a ring (ring attention)."],
+        ["Expert parallelism","Place MoE experts on different GPUs; tokens move with all-to-all communication."],
+        ["Combining parallelisms","Typically TP inside a node, PP and CP across nodes, DP/FSDP outermost. Described with a device mesh."]],
+       "Design a parallelism layout for a 70B dense model on 256 H100s and justify each dimension."],
+      ["Choosing a parallelism strategy","how to choose parallelism strategy FSDP tensor parallel pipeline LLM training",[
+        ["Start with three questions","Does the model fit on one GPU? Is training fast enough? How are the GPUs connected?"],
+        ["The default ladder","DDP if it fits; FSDP when it doesn't; add TP inside a node for very large models; add PP across nodes; add CP for long sequences."],
+        ["Estimate before you run","Work out memory per GPU and communication time per step for each option, using the numbers table."],
+        ["Device meshes","Name each dimension (dp, tp, pp) and assign ranks to it. PyTorch's DeviceMesh does this."],
+        ["Worked examples","1B on 8 GPUs: DDP. 7B on 8 GPUs: FSDP. 70B on 64 GPUs: FSDP plus 8-way TP inside each node."]],
+       "A 13B model on 16 GPUs across 2 nodes: propose a layout, then estimate memory per GPU."],
+      ["Debugging distributed jobs","debug NCCL hang timeout NCCL_DEBUG distributed training",[
+        ["Hangs","Usually mismatched collectives: one rank skipped a call, called them in a different order, or crashed."],
+        ["Diagnostics","NCCL_DEBUG=INFO, TORCH_DISTRIBUTED_DEBUG=DETAIL, py-spy dump on each rank, and sensible timeouts."],
+        ["Silent divergence","The same seed for data on every rank, no DistributedSampler, or code that runs on only one rank."],
+        ["Sharded checkpoints","Saving and loading with torch.distributed.checkpoint, and resharding to a different number of GPUs."],
+        ["Start small","Reproduce on 2 GPUs or 2 CPU processes before debugging at full scale."]],
+       "A 16-GPU job freezes at step 1,200 with no error. Walk through how you find the cause."]
+    ]},
+    {g:"Running at scale", t:[
+      ["Reliability and operations","large scale training failures checkpointing stragglers",[
+        ["Checkpointing","Async and distributed checkpoints; choose frequency from failure rate and save cost."],
+        ["Failures at scale","With thousands of GPUs, something fails every few hours. Automatic restart is required."],
+        ["Stragglers and silent data corruption","One slow or faulty GPU slows or corrupts the whole job."],
+        ["Measuring efficiency","Tokens per second per GPU and MFU, tracked over the run."],
+        ["Schedulers","Slurm and Kubernetes; storage throughput for data and checkpoints."]],
+       "Llama 3's paper reports hundreds of interruptions over its run. What engineering keeps such a job productive?"],
+      ["Performance tuning loop","LLM training performance tuning MFU bottleneck",[
+        ["Measure","Tokens per second per GPU and MFU, over a stable stretch of training."],
+        ["Find the bottleneck","Compute, memory bandwidth, communication, data loading or Python overhead. A profiler trace usually shows which."],
+        ["Change one thing","Batch size, fusion, torch.compile, overlap settings, parallel layout. Remeasure after each change."],
+        ["Know when to stop","Compare against published MFU for similar model sizes and hardware."]],
+       "Your MFU is 22% and the trace shows long gaps during all-reduce. What do you try first?"],
+      ["Frameworks","TorchTitan Megatron-LM DeepSpeed MaxText",[
+        ["TorchTitan","PyTorch-native reference for large-scale training with FSDP2, TP, PP and CP."],
+        ["Megatron-LM and NeMo","NVIDIA's highly optimized training stack."],
+        ["DeepSpeed","ZeRO's origin; still widely used."],
+        ["JAX, XLA and TPUs","jit, vmap, shard_map, and MaxText. Google DeepMind's stack."]],
+       "Read TorchTitan's training loop and list where each parallelism is applied."]
+    ]}
+  ],
+  res:[
+    ["PyTorch distributed tutorials","Start with 'Writing Distributed Applications with PyTorch' and 'Getting Started with Distributed Data Parallel'.","Writing Distributed Applications with PyTorch tutorial"],
+    ["Lilian Weng: How to Train Really Large Models on Many GPUs","The clearest single overview of parallelism.","Lilian Weng How to Train Really Large Models on Many GPUs"],
+    ["Stas Bekman: Machine Learning Engineering","Free open book on memory, debugging, hardware and fault tolerance.","Stas Bekman Machine Learning Engineering open book"],
+    ["The Ultra-Scale Playbook (Hugging Face)","Best single guide to parallelism in practice. Reads best after the foundations.","Hugging Face Ultra-Scale Playbook"],
+    ["How to Scale Your Model (Google DeepMind)","The JAX/TPU scaling book. Excellent on estimation.","How to Scale Your Model jax-ml scaling book"],
+    ["Making Deep Learning Go Brrrr (Horace He)","Short, essential mental model.","Making Deep Learning Go Brrrr From First Principles"],
+    ["GPU MODE lectures and community","Kernel-writing lectures and a very active Discord.","GPU MODE lectures"],
+    ["Programming Massively Parallel Processors","The CUDA textbook. Deep level.","Programming Massively Parallel Processors book"],
+    ["Simon Boehm: How to Optimize a CUDA Matmul Kernel","Step-by-step to near-cuBLAS speed. Deep level.","How to Optimize a CUDA Matmul Kernel for cuBLAS-like Performance"],
+    ["Papers: Megatron-LM, ZeRO, FlashAttention 1 to 3","Read with the playbook beside you.","Megatron-LM paper"]
+  ],
+  project:["Parallelism ladder",[
+    "Run 4 processes on your CPU with the Gloo backend and write a ring all-reduce yourself.",
+    "Write DDP from scratch: average gradients after backward, then add bucketing and overlap with backward.",
+    "Run your DDP and PyTorch's DDP on 2 GPUs and compare throughput.",
+    "Write a simple ZeRO-1 that shards optimizer states across ranks, then switch to FSDP and compare memory per GPU.",
+    "Hand-write a tensor-parallel MLP split across 2 GPUs and check its output matches the single-GPU version.",
+    "Hand-write a two-stage pipeline with micro-batches and measure the bubble against the formula.",
+    "Write a fused Triton kernel (RMSNorm or softmax) and benchmark it against PyTorch.",
+    "Train your Phase 4 GPT with FSDP on a rented 8-GPU node. Report throughput, memory per GPU and MFU, with a profiler trace showing where time goes."
+  ],"Steps 1 to 7 need at most two GPUs. Only step 8 needs real compute."],
+  checks:["Can explain why FlashAttention is faster without being approximate","Can estimate memory for a given model, optimizer and parallelism setup","Triton kernel beats or matches PyTorch eager","Measured MFU on a multi-GPU run and explained the gap to peak","Can design a parallelism layout for a given model and cluster","Wrote all-reduce and DDP yourself","Diagnosed an OOM using a memory snapshot","Can explain rank, local rank and world size, and why mismatched collectives hang"]
+},
+{
+  id:"p4", step:"STEP 4", title:"Post-training: SFT, preference learning and RL", weeks:"8 to 10 wks", ctx:"LLM post-training",
+  goal:"Learn how a base model becomes a useful, aligned assistant, and how RL is used to improve reasoning.",
+  note:"<b>For you:</b> start with RL fundamentals. Most confusion about RLHF and GRPO comes from skipping policy gradients.",
+  topics:[
+    {g:"RL foundations", t:[
+      ["MDPs and value functions","Markov decision process Bellman equation value function",[
+        ["States, actions, rewards, policy","The MDP formalism. For LLMs, the state is the text so far and each token is an action."],
+        ["Return and discounting","Sum of future rewards. LLM RL usually has one reward at the end and no discount."],
+        ["V, Q and advantage","Value of a state, value of an action in a state, and how much better an action is than average."],
+        ["Bellman equations","Recursive definitions that value-learning methods are built on."]],
+       "In LLM RL with a single end-of-sequence reward, what is the 'action' and what is the 'state'?"],
+      ["Policy gradients","policy gradient theorem REINFORCE baseline derivation",[
+        ["Policy gradient theorem","∇J = E[∇log π(a|s) · return]. Increase the probability of actions that led to high return."],
+        ["REINFORCE","The simplest Monte Carlo estimator of that gradient."],
+        ["Baselines","Subtracting a baseline reduces variance without adding bias."],
+        ["GAE","Generalized Advantage Estimation trades bias and variance with λ."],
+        ["On-policy vs off-policy","Using samples from the current policy vs older ones; importance sampling corrects the mismatch."]],
+       "Prove that subtracting a state-dependent baseline leaves the policy gradient unbiased."],
+      ["PPO","proximal policy optimization clipped objective explained",[
+        ["Probability ratio","New policy's probability divided by the old one's for each sampled action."],
+        ["Clipping","Limit the ratio to [1−ε, 1+ε] so one update cannot move the policy too far."],
+        ["Value head","A critic network estimates values for advantage computation."],
+        ["Multiple epochs per batch","Reuse each batch of rollouts several times; the clip keeps this safe."]],
+       "What failure does PPO's clipping prevent that vanilla policy gradient suffers from?"]
+    ]},
+    {g:"Supervised fine-tuning", t:[
+      ["SFT mechanics","supervised fine tuning chat template loss masking",[
+        ["Chat templates","Role markers and special tokens that turn conversations into one token sequence."],
+        ["Loss masking","Train only on assistant tokens, not on the user prompt."],
+        ["Data quality over quantity","A few thousand excellent examples can beat millions of mediocre ones (LIMA)."],
+        ["Synthetic SFT data","Generated by stronger models, then filtered."],
+        ["Hyperparameters","Much lower learning rates than pretraining (around 1e-5 for full fine-tuning) and few epochs."]],
+       "What goes wrong if you forget to mask the prompt tokens from the SFT loss?"],
+      ["Parameter-efficient fine-tuning","LoRA QLoRA explained rank alpha",[
+        ["LoRA","Freeze W and learn a low-rank update BA. Rank r and scale α control capacity."],
+        ["Which modules","Applying LoRA to all linear layers usually beats attention-only."],
+        ["QLoRA","Keep the frozen base in 4-bit NF4 and train LoRA adapters in higher precision."],
+        ["Catastrophic forgetting","Fine-tuning can erase capabilities; LoRA tends to forget less."]],
+       "Why is B initialized to zero in LoRA?"]
+    ]},
+    {g:"Preference learning", t:[
+      ["Reward models and RLHF","InstructGPT RLHF reward model Bradley-Terry",[
+        ["Pairwise preferences","Humans pick the better of two responses."],
+        ["Bradley-Terry loss","Reward model learns r so that P(A preferred over B) = σ(r_A − r_B)."],
+        ["The RLHF objective","Maximize reward minus β·KL(policy ‖ reference) so the model does not drift into nonsense."],
+        ["Four models in memory","Policy, reference, reward model and value model during PPO-based RLHF."],
+        ["Reward overoptimization","Past a point, higher reward-model score means worse true quality (Gao et al.)."]],
+       "Why is the KL penalty to the reference model necessary in RLHF?"],
+      ["DPO and its relatives","direct preference optimization derivation",[
+        ["Closed-form optimal policy","For the KL-regularized objective, π* ∝ π_ref · exp(r/β)."],
+        ["The DPO trick","Rearranging gives r in terms of log(π/π_ref), so you can train on preferences with no reward model or RL."],
+        ["β","Controls how far the policy may move from the reference."],
+        ["Variants","IPO, KTO, SimPO, ORPO: different losses with different assumptions."],
+        ["Offline vs online","DPO on fixed data vs generating fresh pairs from the current model. Online usually works better."]],
+       "Derive the DPO loss starting from the KL-regularized reward objective."],
+      ["AI feedback and constitutions","Constitutional AI RLAIF paper",[
+        ["Constitutional AI","A model critiques and revises its own outputs against written principles, then learns from AI preference labels."],
+        ["RLAIF","Using model-generated preference labels instead of human ones."],
+        ["Model specs","Written descriptions of intended behavior that guide data generation and evaluation."]],
+       "What are the benefits and risks of replacing human preference labels with AI labels?"]
+    ]},
+    {g:"RL for reasoning", t:[
+      ["RL with verifiable rewards","RLVR reinforcement learning verifiable rewards math code",[
+        ["Verifiable rewards","Reward from checking the answer (math answers, unit tests) instead of a learned reward model."],
+        ["Format rewards","Small rewards for following the required output structure."],
+        ["Emergent long reasoning","DeepSeek-R1-Zero: RL alone led to longer chains of thought and self-correction."],
+        ["Test-time compute","More thinking tokens at inference improve accuracy; RL teaches the model to use them."]],
+       "Why are verifiable rewards harder to hack than learned reward models, and how can they still be hacked?"],
+      ["GRPO and variants","GRPO group relative policy optimization DAPO Dr GRPO",[
+        ["Group sampling","Sample several answers per prompt."],
+        ["Group-relative advantage","Advantage = (reward − group mean) / group std. No value network needed."],
+        ["KL term","Optional penalty to a reference model."],
+        ["Known biases and fixes","Length normalization and std normalization biases (Dr. GRPO); clip-higher and dynamic sampling (DAPO)."],
+        ["Zero-variance groups","If all samples are right or all wrong, the group gives no learning signal."]],
+       "Why can GRPO drop the value network that PPO needs?"],
+      ["RL infrastructure","asynchronous RL LLM rollout vLLM weight sync",[
+        ["Rollouts dominate","Generating samples usually takes most of the wall-clock time."],
+        ["Inference engines for rollouts","vLLM or SGLang generate; the trainer updates weights; weights are synced back."],
+        ["Asynchronous RL","Overlap generation and training, at the cost of slightly off-policy data."],
+        ["Environments","Sandboxed code execution, tool use and multi-turn tasks for agentic RL."]],
+       "Why does a slightly stale policy in async RL need importance-sampling corrections?"],
+      ["Distillation and reward hacking","knowledge distillation LLM reasoning traces reward hacking",[
+        ["SFT distillation","Train a small model on a large model's reasoning traces."],
+        ["Logit distillation","Match the teacher's full token distribution with a KL loss."],
+        ["On-policy distillation","The student generates; the teacher scores each token."],
+        ["Reward hacking","Models exploit flaws in the reward: special-casing tests, gaming the verifier. Look for it actively."]],
+       "Give two concrete examples of reward hacking in coding RL and how you would detect them."]
+    ]}
+  ],
+  res:[
+    ["OpenAI Spinning Up in Deep RL","Concise RL intro with code.","OpenAI Spinning Up deep RL"],
+    ["Sutton and Barto: Reinforcement Learning","Free textbook. Chapters 1 to 6 and 13.","Sutton Barto reinforcement learning book pdf"],
+    ["RLHF Book (Nathan Lambert)","Free online book on post-training.","Nathan Lambert RLHF book"],
+    ["Papers: InstructGPT, DPO, DeepSeekMath (GRPO), DeepSeek-R1, Constitutional AI, Tülu 3","Core reading list.","DeepSeek-R1 paper"],
+    ["Libraries: TRL, verl, OpenRLHF","Read their trainers to see real implementations.","verl reinforcement learning LLM library"]
+  ],
+  project:["Small-model RL","SFT a ~0.5B to 1.5B open model on a math dataset, then train it with GRPO using a verifiable reward (answer correctness). Compare with DPO. Report accuracy, reward curves, response length over training, and at least one case of reward hacking you found."],
+  checks:["Can derive the policy gradient and explain the role of the baseline","Can explain DPO's relationship to the RLHF objective","Implemented GRPO's loss yourself before using a library","Published the RL experiment with failure analysis","Can explain PPO's clipped objective and why the value head exists"]
+},
+{
+  id:"p5", step:"STEP 5", title:"Inference and serving", weeks:"4 to 6 wks", ctx:"LLM inference",
+  goal:"Understand how models are served fast and cheaply. Inference cost drives product decisions at every lab.",
+  note:"<b>For you:</b> your deployment background transfers directly. Focus on LLM-specific techniques that don't exist in classic model serving.",
+  topics:[
+    {g:"Fundamentals", t:[
+      ["Prefill, decode and metrics","prefill decode memory bound time to first token TPOT",[
+        ["Prefill is compute-bound","The whole prompt is processed in parallel, like training's forward pass."],
+        ["Decode is memory-bound","Every new token reads all weights and the KV cache; arithmetic intensity is roughly the batch size."],
+        ["Latency metrics","Time to first token (TTFT), time per output token (TPOT), end-to-end latency."],
+        ["Throughput and goodput","Tokens per second overall, and requests per second that meet latency targets."]],
+       "Why does increasing the decode batch from 1 to 32 barely slow each step but give ~32× the throughput?"],
+      ["Batching","continuous batching LLM inference Orca",[
+        ["Static batching","Wait for the whole batch to finish. Wastes GPU time on short requests."],
+        ["Continuous batching","Add and remove requests every iteration (Orca)."],
+        ["Chunked prefill","Split long prompts into chunks mixed with decode steps to keep latency smooth."]],
+       "What problem does continuous batching solve that static batching cannot?"]
+    ]},
+    {g:"Memory management", t:[
+      ["PagedAttention and caching","PagedAttention vLLM RadixAttention prefix caching",[
+        ["PagedAttention","Store the KV cache in fixed-size blocks with a block table, like OS virtual memory. Almost no fragmentation."],
+        ["Copy-on-write","Share KV blocks across parallel samples of the same prompt."],
+        ["Prefix caching","Reuse KV for shared prompt prefixes such as system prompts."],
+        ["RadixAttention","SGLang's tree of cached prefixes for automatic reuse."]],
+       "Why did pre-vLLM servers waste most of their KV cache memory?"],
+      ["KV cache compression","KV cache quantization attention sinks StreamingLLM",[
+        ["Architectural","GQA and MLA reduce KV size at training time."],
+        ["Quantized KV","Store the cache in FP8 or lower."],
+        ["Eviction","Drop less important tokens (H2O); keep attention sinks plus a recent window (StreamingLLM)."],
+        ["Offloading","Move cold KV to CPU memory or SSD."]],
+       "What are attention sinks and why does dropping the first tokens break generation?"]
+    ]},
+    {g:"Quantization", t:[
+      ["Quantization basics","quantization scale zero point per channel per group",[
+        ["Scale and zero-point","Map floats to integers: x ≈ scale · (q − zero_point)."],
+        ["Granularity","Per-tensor, per-channel or per-group. Finer is more accurate with more metadata."],
+        ["PTQ vs QAT","Quantize after training vs train with quantization in the loop."],
+        ["Measuring damage","Perplexity alone can hide losses; check task evals too."]],
+       "Why does 4-bit weight-only quantization speed up decode but not prefill?"],
+      ["Methods","GPTQ AWQ SmoothQuant explained",[
+        ["GPTQ","Uses second-order information to compensate for rounding error, column by column."],
+        ["AWQ","Protects weights that see large activations by scaling them before quantizing."],
+        ["Activation outliers","A few channels have huge activations, which makes activation quantization hard."],
+        ["SmoothQuant","Moves the outlier difficulty from activations into weights so both can use 8 bits."],
+        ["FP8 inference","Native on Hopper and later GPUs with per-tensor or block scales."]],
+       "Why are activations harder to quantize than weights in LLMs?"]
+    ]},
+    {g:"Decoding speedups", t:[
+      ["Speculative decoding","speculative decoding acceptance rejection sampling EAGLE",[
+        ["Draft then verify","A small model proposes several tokens; the large model checks them all in one forward pass."],
+        ["Lossless acceptance rule","Rejection sampling guarantees the output distribution matches the large model exactly."],
+        ["Speedup drivers","Acceptance rate and the draft model's cost."],
+        ["Draft heads","Medusa and EAGLE attach light prediction heads to the main model instead of a separate draft."]],
+       "Why is speculative decoding free in quality terms but not free in compute terms?"],
+      ["Structured generation","constrained decoding JSON schema grammar XGrammar",[
+        ["Constrained decoding","Mask tokens that would violate a grammar or JSON schema at each step."],
+        ["Efficient grammar engines","XGrammar and Outlines precompute masks to keep overhead low."],
+        ["Tool call formats","How function-call outputs are parsed reliably."]],
+       "How can token masking for a JSON schema interact badly with tokenization?"]
+    ]},
+    {g:"Serving systems", t:[
+      ["Engines and architecture","vLLM architecture scheduler SGLang TensorRT-LLM",[
+        ["vLLM, SGLang, TensorRT-LLM, llama.cpp","Know what each optimizes for."],
+        ["Scheduler","Decides which requests run each step under memory limits; handles preemption."],
+        ["Inference parallelism","TP for latency, PP for very large models, EP for MoE, replicas for throughput."],
+        ["Disaggregated serving","Separate GPU pools for prefill and decode (DistServe, Mooncake) because they have different bottlenecks."]],
+       "Why might you run prefill and decode on different GPUs?"],
+      ["Economics","LLM inference cost per million tokens calculation",[
+        ["Cost per million tokens","GPU cost per hour divided by tokens per hour at target latency."],
+        ["Latency vs throughput curve","Bigger batches cut cost but raise latency."],
+        ["Routing and autoscaling","KV-cache-aware routing sends requests to servers that already hold their prefix."]],
+       "Estimate the cost per million output tokens for a 70B model on 4 H100s at $3/GPU-hour and 2,000 tokens/s."]
+    ]}
+  ],
+  res:[
+    ["vLLM paper and docs","Read the paper, then the scheduler code.","vLLM PagedAttention paper"],
+    ["SGLang paper","Structured generation and RadixAttention.","SGLang paper"],
+    ["Fast Inference from Transformers via Speculative Decoding","The original paper.","Fast Inference from Transformers via Speculative Decoding"],
+    ["Mini-SGLang or nano-vLLM","Small readable inference engines to study.","nano-vllm github"],
+    ["LLM inference blog posts by Baseten, Modal, Anyscale, PyTorch","Practical write-ups.","LLM inference optimization guide blog"]
+  ],
+  project:["Inference engine from scratch","Add a KV cache, batched generation and simple speculative decoding to your Phase 4 model. Then serve an open model with vLLM and benchmark tokens/sec and latency against batch size and quantization level."],
+  checks:["Can explain why decode is memory-bound","Implemented a working KV cache with a measured speedup","Benchmarked a real serving stack and plotted the latency/throughput curve","Can explain PagedAttention and speculative decoding's acceptance rule"]
+},
+{
+  id:"p6", step:"STEP 6", title:"Evals, agents and harnesses", weeks:"4 to 6 wks", ctx:"LLM evaluation",
+  goal:"Learn to measure models properly and to build agents around them. Evals are how labs decide everything.",
+  note:"<b>For you:</b> your statistics and experiment design background is a real advantage here. Many engineers are weak at it.",
+  topics:[
+    {g:"Eval methodology", t:[
+      ["Eval formats","LLM evaluation methods log likelihood generation LLM judge",[
+        ["Log-likelihood multiple choice","Score options by probability. Works on base models."],
+        ["Generative with answer extraction","Model writes an answer; a parser or checker grades it. Parsing bugs are common."],
+        ["Execution-based","Run generated code against tests."],
+        ["Human and arena evals","Pairwise human votes aggregated into Elo or Bradley-Terry ratings."]],
+       "Why can the same model score very differently on MMLU in two different harnesses?"],
+      ["Statistics for evals","Adding Error Bars to Evals statistical approach",[
+        ["Standard error","√(p(1−p)/n) for accuracy. Report confidence intervals, not bare numbers."],
+        ["Clustered errors","Questions sharing a passage are not independent; cluster the standard errors."],
+        ["Paired comparisons","Compare two models on the same questions to cut variance."],
+        ["Sampling variance","Average over several samples per question at nonzero temperature."],
+        ["pass@k","Unbiased estimator 1 − C(n−c, k) / C(n, k) from n samples with c correct."]],
+       "Model A scores 71.0% and model B 69.5% on 500 questions. Is A better?"],
+      ["Validity and contamination","benchmark contamination detection construct validity",[
+        ["Contamination","Test questions in training data. Detect with n-gram overlap, canary strings, or performance on rewritten versions."],
+        ["Saturation","Once top models score near the ceiling, a benchmark stops distinguishing them."],
+        ["Construct validity","Does the benchmark measure the capability you claim it measures?"],
+        ["Prompt sensitivity","Formatting, few-shot examples and answer extraction change scores."]],
+       "How would you test whether a model has memorized a benchmark?"],
+      ["LLM-as-judge","LLM as a judge biases position verbosity calibration",[
+        ["Rubrics","Specific criteria make judges more consistent."],
+        ["Biases","Position bias, verbosity bias and self-preference."],
+        ["Calibration","Measure agreement with human labels before trusting a judge."],
+        ["Mitigations","Swap answer order, use several judges, ask for reasoning before the verdict."]],
+       "Design a protocol to measure how much an LLM judge agrees with human raters."]
+    ]},
+    {g:"Benchmarks to know", t:[
+      ["Capability benchmarks","GPQA MMLU-Pro Humanity's Last Exam AIME benchmark",[
+        ["Knowledge and reasoning","MMLU, MMLU-Pro, GPQA Diamond, Humanity's Last Exam."],
+        ["Math","MATH, GSM8K (saturated), AIME, FrontierMath."],
+        ["Code","HumanEval (saturated), LiveCodeBench, SWE-bench Verified, Terminal-Bench."],
+        ["Long context","Needle in a haystack, RULER."]],
+       "Why did SWE-bench need a human-verified subset?"],
+      ["Agentic and safety evals","tau-bench OSWorld METR time horizon dangerous capability evals",[
+        ["Agentic","tau-bench, OSWorld, WebArena, GAIA."],
+        ["METR time horizon","Length of tasks (in human time) a model can complete with 50% reliability."],
+        ["Dangerous capability evals","Biology, cyber and autonomy evaluations used in lab safety frameworks."],
+        ["Behavioral evals","Sycophancy, deception, sabotage and refusal behavior."]],
+       "What makes an agentic benchmark harder to make reproducible than a multiple-choice one?"]
+    ]},
+    {g:"Agents and harnesses", t:[
+      ["The agent loop","Building effective agents Anthropic ReAct",[
+        ["Loop structure","Model, tool call, tool result, repeat until done or a budget is hit."],
+        ["ReAct","Interleaving reasoning and actions."],
+        ["Workflows vs agents","Fixed code paths that call models vs models choosing their own steps."],
+        ["Stop conditions","Turn limits, cost limits, success checks."]],
+       "Write a minimal agent loop with two tools using only an LLM API, no framework."],
+      ["Tools and MCP","Model Context Protocol tools resources tool design",[
+        ["Tool design","Clear names, tight schemas, helpful error messages. Fewer good tools beat many vague ones."],
+        ["MCP","A standard protocol exposing tools, resources and prompts from servers to any agent."],
+        ["Idempotency","Tools that can be retried safely."],
+        ["Returning the right amount","Large tool outputs flood the context; paginate and summarize."]],
+       "Why do tool error messages matter so much for agent success rates?"],
+      ["Context engineering","context engineering AI agents compaction",[
+        ["What goes in context","Instructions, relevant files, tool results, memory. Everything competes for attention."],
+        ["Compaction","Summarize history when it grows long."],
+        ["Sub-agents","Isolate exploratory work in a separate context and return only the result."],
+        ["Persistent memory","Files like CLAUDE.md or notes the agent reads and writes across sessions."]],
+       "Why can giving an agent more context make it perform worse?"],
+      ["Guardrails and safety for agents","prompt injection AI agents sandboxing",[
+        ["Sandboxing","Containers or VMs, network allowlists, limited credentials."],
+        ["Permissions and hooks","Allow, ask and deny rules; scripts that block dangerous actions."],
+        ["Prompt injection","Instructions hidden in web pages or files that hijack the agent."],
+        ["Human review gates","Agents open PRs; humans merge."]],
+       "Describe a prompt injection attack on a coding agent and two defenses."],
+      ["Evaluating agents","agent evaluation trajectories pass^k reliability",[
+        ["Success rate and reliability","pass@k shows capability; pass^k (all k tries succeed) shows reliability."],
+        ["Trajectory analysis","Read transcripts to find where agents fail, not just whether."],
+        ["Cost and latency","Report tokens and time per task alongside success."],
+        ["Environment determinism","Fix seeds, snapshots and external dependencies."]],
+       "Why is pass^k a more useful number than pass@k for production agents?"],
+      ["Retrieval (RAG)","retrieval augmented generation hybrid search reranker evaluation",[
+        ["Embeddings and chunking","Chunk size and overlap strongly affect retrieval quality."],
+        ["Hybrid search","Combine BM25 keyword search with dense embeddings."],
+        ["Rerankers","Cross-encoders rescore the top candidates."],
+        ["Retrieval evals","Recall@k and answer faithfulness, measured separately."]],
+       "Your RAG system gives wrong answers. How do you tell whether retrieval or generation is at fault?"]
+    ]}
+  ],
+  res:[
+    ["Inspect (UK AI Security Institute)","Open-source eval framework used by labs and governments.","Inspect AI evaluation framework"],
+    ["lm-evaluation-harness (EleutherAI)","Standard harness for academic benchmarks.","EleutherAI lm-evaluation-harness"],
+    ["Adding Error Bars to Evals (Anthropic)","Statistics for model evaluation.","Adding Error Bars to Evals statistical approach language model"],
+    ["Building Effective Agents (Anthropic)","Clear patterns for agent design.","Anthropic Building effective agents"],
+    ["Claude Agent SDK / OpenAI Agents SDK docs","Build your own harness.","Claude Agent SDK documentation"]
+  ],
+  project:["An eval you built","Design a small, original eval (e.g. diagnosing faults from maintenance logs, using your rail experience) in Inspect. Run several open and API models, report scores with confidence intervals, and analyze failure modes. Build a simple agent that attempts it with tools and compare."],
+  checks:["Report includes confidence intervals and a contamination check","Ran at least 4 models through your eval","Built an agent loop with tools without a framework, then with an SDK","Measured agreement between an LLM judge and your own labels"]
+},
+{
+  id:"p7", step:"STEP 7", title:"Specialize and ship public work", weeks:"3 to 6 mos", ctx:"machine learning research",
+  goal:"Go deep in one track below and produce work that a lab engineer would find interesting enough to share.",
+  note:"<b>For you:</b> multimodal and inference/infra are natural fits given your CV and MLOps history. Evals is a strong third option.",
+  topics:[
+    {g:"Research engineering skills", t:[
+      ["Experimental design","ablation study design machine learning seeds variance",[
+        ["Ablations","Change one thing at a time against a strong baseline."],
+        ["Seeds and variance","Run several seeds before claiming a small improvement is real."],
+        ["Baselines","Tune your baseline as hard as your method. Weak baselines are the most common flaw in ML papers."],
+        ["Small-scale proxies","Test ideas on small models first, then confirm they hold at larger scale."]],
+       "Your new method beats the baseline by 0.5% on one seed. What do you run next?"],
+      ["Reproducing papers","how to reproduce ML papers implementation",[
+        ["Pick well-scoped papers","Recent, with a clear claim and modest compute."],
+        ["Match details","Hyperparameters, data processing and evaluation protocol hide most of the difficulty."],
+        ["Report honestly","Include what you could not reproduce and why."]],
+       "Which unstated details most often break a reproduction?"],
+      ["Reading large codebases","reading open source ML codebase vLLM PyTorch contribute",[
+        ["Start from entry points","Follow one request or one training step end to end."],
+        ["Tests as documentation","Tests show intended behavior."],
+        ["Good first issues","The fastest route to a merged PR in vLLM, TRL, PyTorch or Hugging Face libraries."]],
+       "Trace one generate() call through vLLM and draw the call graph."]
+    ]},
+    {g:"Showing your work", t:[
+      ["Technical writing","how to write a good ML research blog post",[
+        ["Lead with the result","State the finding and the evidence in the first paragraph."],
+        ["Plots that answer questions","Each figure should support one specific claim."],
+        ["Failures are content","Negative results and debugging stories are valued."]],
+       "Write the first paragraph of the post for your Phase 6 project."],
+      ["Where to publish","Hugging Face blog workshop paper NeurIPS submission",[
+        ["GitHub","Clean READMEs with results and how to reproduce."],
+        ["Personal blog, X, Hugging Face","Where lab engineers actually see work."],
+        ["Workshop papers","A lower-barrier route to peer-reviewed ML work."]],
+       "Where does the audience you want to reach actually read?"]
+    ]}
+  ],
+  res:[
+    ["Fellowship and residency programs","Search current lab fellowships and research programs; requirements and dates change each year.","AI lab research fellowship program"],
+    ["MATS and similar mentorship programs","Structured research with mentors from labs.","MATS ML alignment theory scholars program"],
+    ["ARENA curriculum","Hands-on interpretability and RL exercises.","ARENA alignment research engineer accelerator"],
+    ["Lab engineering blogs","Read what teams publish to see what they care about.","Anthropic engineering blog"]
+  ],
+  project:["Flagship project","One substantial project in your chosen track, with a write-up good enough that someone at a lab would share it. Quality and clarity matter more than scale."],
+  checks:["Picked a track and wrote down why","Merged at least one PR into a major open-source ML project","Published a flagship write-up","Got feedback from at least two practitioners in the field"]
+}
+];
+
+const TRACKS = [
+  ["Pretraining","Architecture, data mixtures, scaling laws, training stability at scale.","Scaling laws, loss spikes, μP","LLM pretraining research engineer",[
+    ["Scaling law fitting","Fit loss vs compute curves from small runs and extrapolate."],
+    ["Data mixture optimization","DoReMi, RegMix and annealing experiments."],
+    ["Training instabilities","Diagnose and prevent loss spikes at scale."],
+    ["Architecture ablations","MoE design, attention variants, long-context training."],
+    ["Optimizer research","Muon, Shampoo and learning-rate transfer."]]],
+  ["Post-training and RL","RL for reasoning, reward modeling, preference data, RL infrastructure.","GRPO, reward models, RL environments","RL environments for LLM training",[
+    ["RL environment design","Building tasks with reliable, unhackable rewards."],
+    ["Reward modeling","Generative reward models, process reward models, rubric rewards."],
+    ["RL scaling","Stable long RL runs, entropy collapse, off-policy corrections."],
+    ["Agentic RL","Multi-turn tool use with sandboxed environments."],
+    ["Character and behavior","Shaping model personality and refusals."]]],
+  ["Inference and infra","Kernels, serving systems, cluster scheduling, reliability.","Strong fit with your MLOps background","LLM inference engineer skills",[
+    ["Kernel engineering","CUDA, Triton, CUTLASS, ThunderKittens."],
+    ["Serving systems","Scheduler design, disaggregation, KV-cache management."],
+    ["Low precision","FP8 and FP4 training and inference."],
+    ["Cluster reliability","Fault detection, checkpointing, scheduling at thousands of GPUs."],
+    ["Compilers","torch.compile internals, XLA, MLIR."]]],
+  ["Evals and agents","Measuring capabilities, building agent environments and benchmarks.","Strong fit with your stats and DS background","LLM evaluation engineer role",[
+    ["Benchmark construction","Hard, uncontaminated, valid tasks with expert input."],
+    ["Agent environments","Realistic, reproducible sandboxes for agents."],
+    ["Eval infrastructure","Running thousands of evals reliably and cheaply."],
+    ["Statistical rigor","Error bars, power analysis, judge calibration."],
+    ["Safety evals","Dangerous capability and behavioral evaluations."]]],
+  ["Multimodal","Vision-language models, image and video encoders, tokenizing images.","Strong fit with your CV background","vision language model architecture LLaVA",[
+    ["Vision encoders","ViT, SigLIP, patching and resolution handling."],
+    ["Connecting modalities","Projectors, cross-attention, early-fusion models."],
+    ["Image tokenization","VQ-VAE and discrete image tokens."],
+    ["Video and audio","Temporal compression, speech tokenizers."],
+    ["Multimodal data","Interleaved image-text corpora, captioning pipelines."]]],
+  ["Interpretability and safety","Understanding model internals, monitoring, red teaming.","Sparse autoencoders, circuits, probing","Transformer Circuits sparse autoencoders",[
+    ["Mechanistic interpretability","Circuits, features, superposition."],
+    ["Sparse autoencoders and transcoders","Extracting interpretable features at scale."],
+    ["Probing and steering","Linear probes and activation steering."],
+    ["Monitoring","Detecting harmful behavior and chain-of-thought monitoring."],
+    ["Red teaming","Adversarial testing and jailbreak research."]]]
+];
+
+const THREADS = [
+  ["Read one paper a week","Use the three-pass method. Keep a short log of what each paper claims and how it tests it.","how to read a paper Keshav three pass"],
+  ["Rebuild before you use","Implement each idea yourself once before reaching for a library. This is what interviews test.","implement from scratch machine learning learning strategy"],
+  ["Track every experiment","Weights and Biases or MLflow, with configs and seeds. Labs expect clean experimental hygiene.","Weights and Biases experiment tracking"],
+  ["Write in public","Short notes every few weeks. Writing exposes gaps and is how people find you.","learning in public blog machine learning"],
+  ["Join the communities","GPU MODE, EleutherAI and Hugging Face Discords. Ask good questions, answer easy ones.","EleutherAI Discord community"],
+  ["Budget compute","Home GPU for kernels and small runs. Rent H100s by the hour for scale experiments. Colab and Kaggle for quick tests.","cheapest H100 cloud rental per hour"]
+];
+
+const HIRING = [
+  ["Roles to search for","Research Engineer, Member of Technical Staff (MTS), ML Systems Engineer, Inference Engineer, Performance Engineer, Research Engineer (Evals), Applied AI Engineer. Titles differ by lab; read job descriptions for the actual work.","Member of Technical Staff research engineer AI lab"],
+  ["What interviews test","Practical coding (implement attention, fix a broken training loop), ML depth questions, back-of-envelope estimation, systems design for training or serving, sometimes a take-home, and a values interview.","research engineer interview LLM lab preparation"],
+  ["Coding drills to practice","Implement from scratch, timed: multi-head attention with a causal mask, a KV cache, BPE training, top-p sampling, LayerNorm forward and backward, a training loop with gradient accumulation, and a simple ring all-reduce simulation.","LLM research engineer coding interview implement attention from scratch"],
+  ["System design prompts","Practice answering: design training for a 70B model on 1,024 GPUs; design an inference service at a target cost per token; design an RL pipeline for coding; design an eval platform for thousands of runs.","ML system design interview LLM training inference"],
+  ["What gets you noticed","Public projects that show judgment: clean ablations, honest failure analysis, open-source PRs, clear writing. Referrals from people who have seen your work help a lot.","how to get hired at an AI lab research engineer"],
+  ["Stepping stones","AI-native startups, Hugging Face, applied AI teams at large tech companies, open-source maintainer roles, and fellowship programs. Many lab engineers came through one of these first.","AI startup machine learning engineer roles"]
+];
+
+/* ---------- state ---------- */
+const KEY = "frontier-roadmap-v1";
+let done = {};
+try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e) { done = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e) {} }
+
+/* ---------- render ---------- */
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const conceptList = (items, ctx) => `<ul class="concepts">${items.map(c=>`<li><a href="${S(c[0]+" "+ctx)}" target="_blank" rel="noopener">${esc(c[0])}</a> <span>${esc(c[1])}</span></li>`).join("")}</ul>`;
+
+let topicTotal = 0, conceptTotal = 0;
+const phasesEl = document.getElementById("phases");
+const TOPIC_INDEX = {};
+const slug = s => "t-" + s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+phasesEl.innerHTML = PHASES.map((p, pi) => `
+<article class="phase" id="${p.id}">
+  <div class="phase-head">
+    <span class="step">STEP ${pi+1}</span>
+    <div class="phase-title"><h3>${esc(p.title)}</h3><p>${esc(p.goal)}</p></div>
+    <div class="meta"><span>${p.weeks}</span><div class="bar"><i id="bar-${p.id}"></i></div><span id="pct-${p.id}">0%</span></div>
+  </div>
+  <p class="note">${p.note}</p>
+  <div class="phase-body">
+    <div class="col">
+      <div class="block"><span class="eyebrow">Topics to master · open each for depth</span>
+        ${p.topics.map(g => `<div class="group"><span class="gname">${esc(g.g)}</span>${g.t.map(t=>{
+          topicTotal++; conceptTotal += t[2].length;
+          const hay = (t[0]+" "+t[2].map(c=>c[0]+" "+c[1]).join(" ")+" "+t[3]).toLowerCase();
+          const tid = slug(t[0]);
+          return `<details class="topic" id="${tid}" data-text="${esc(hay)}"><summary><span class="tn">${esc(t[0])}</span>${t[4]==="deep"?`<span class="lvl">Deep · optional</span>`:""}<span class="tc">${t[2].length} concepts</span></summary>
+            <div class="tbody">${conceptList(t[2], p.ctx)}
+              <p class="selftest"><b>Self-test</b>${esc(t[3])}</p>
+              <a class="chip tsearch" href="${S(t[1])}" target="_blank" rel="noopener">Search the whole topic</a>
+            </div></details>`;}).join("")}</div>`).join("")}
+      </div>
+    </div>
+    <div class="col">
+      <div class="block"><span class="eyebrow">Key resources</span>
+        <ul class="res">${p.res.map(r=>`<li><a href="${S(r[2])}" target="_blank" rel="noopener">${esc(r[0])}</a><span>${esc(r[1])}</span></li>`).join("")}</ul>
+      </div>
+      <div class="project"><span class="eyebrow">Build this</span><h4>${esc(p.project[0])}</h4>${Array.isArray(p.project[1]) ? `<ol class="ladder">${p.project[1].map(x=>`<li>${esc(x)}</li>`).join("")}</ol>${p.project[2]?`<p class="pnote">${esc(p.project[2])}</p>`:""}` : `<p>${esc(p.project[1])}</p>`}</div>
+      <div class="block"><span class="eyebrow">You're done when</span>
+        <ul class="checks">${p.checks.map((c,i)=>{const k=p.id+"-"+i; return `<li><label for="${k}"><input type="checkbox" id="${k}" data-k="${k}" ${done[k]?"checked":""}><span>${esc(c)}</span></label></li>`}).join("")}</ul>
+      </div>
+    </div>
+  </div>
+  <p class="empty" hidden>No topics in this phase match your filter.</p>
+</article>`).join("");
+
+document.getElementById("tracks").innerHTML = TRACKS.map(t=>`
+  <div class="card"><h3>${esc(t[0])}</h3><p>${esc(t[1])}</p><span class="fit">${esc(t[2])}</span>
+  <span class="eyebrow">Depth looks like</span>${conceptList(t[4], t[0])}
+  <a class="chip" style="align-self:flex-start" href="${S(t[3])}" target="_blank" rel="noopener">Search this track</a></div>`).join("");
+document.getElementById("threads").innerHTML = THREADS.map(t=>`
+  <div class="card"><h3>${esc(t[0])}</h3><p>${esc(t[1])}</p>
+  <a class="chip" style="align-self:flex-start" href="${S(t[2])}" target="_blank" rel="noopener">Search</a></div>`).join("");
+document.getElementById("hiring").innerHTML = HIRING.map(t=>`
+  <div class="card"><h3>${esc(t[0])}</h3><p>${esc(t[1])}</p>
+  <a class="chip" style="align-self:flex-start" href="${S(t[2])}" target="_blank" rel="noopener">Search</a></div>`).join("");
+
+/* ---------- filter and expand ---------- */
+const countEl = document.getElementById("count");
+const topics = [...document.querySelectorAll(".phase .topic")];
+function setCount(n){ countEl.textContent = n===null ? `${topicTotal} topics · ${conceptTotal} concepts` : `${n} of ${topicTotal} topics match`; }
+setCount(null);
+const filterEl = document.getElementById("filter");
+function applyFilter(){
+  const q = filterEl.value.trim().toLowerCase();
+  const active = !!q;
+  let n = 0;
+  topics.forEach(t=>{ const m = (!q || t.dataset.text.includes(q)); t.hidden = !m; if(active) t.open = m; if(m) n++; });
+  document.querySelectorAll(".phase .group").forEach(g=>{ g.hidden = ![...g.querySelectorAll(".topic")].some(t=>!t.hidden); });
+  document.querySelectorAll(".phase").forEach(p=>{ const any=[...p.querySelectorAll(".topic")].some(t=>!t.hidden); p.querySelector(".empty").hidden = any; p.querySelector(".phase-body").hidden = !any; });
+  if(!active){ topics.forEach(t=>t.open=false); setCount(null); } else setCount(n);
+}
+filterEl.addEventListener("input", applyFilter);
+
+document.getElementById("expandAll").addEventListener("click",()=>topics.forEach(t=>{ if(!t.hidden) t.open=true; }));
+document.getElementById("collapseAll").addEventListener("click",()=>topics.forEach(t=>t.open=false));
+
+/* ---------- curve ---------- */
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("curve");
+const L=50, R=970, T=24, B=190;
+const loss = x => 0.12 + 0.88*Math.exp(-3.1*x);
+const px = x => L + x*(R-L);
+const py = v => B - (v-0.08)/(1.0-0.08)*(B-T);
+function el(n, a){ const e=document.createElementNS(NS,n); for(const k in a) e.setAttribute(k,a[k]); return e; }
+[0.25,0.5,0.75,1.0].forEach(v=>svg.appendChild(el("line",{x1:L,x2:R,y1:py(v),y2:py(v),stroke:"var(--line)","stroke-width":1})));
+svg.appendChild(el("line",{x1:L,x2:R,y1:B,y2:B,stroke:"var(--muted)","stroke-width":1}));
+const yl = el("text",{x:L-8,y:T+6,"text-anchor":"end"}); yl.textContent="loss"; svg.appendChild(yl);
+const xl = el("text",{x:R,y:B+52,"text-anchor":"end"}); xl.textContent="steps (months) →"; svg.appendChild(xl);
+let d=""; let seed=7;
+const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+for(let i=0;i<=240;i++){ const x=i/240; const v=loss(x)+(rnd()-0.5)*0.035*(1-x*0.6); d+=(i?"L":"M")+px(x).toFixed(1)+" "+py(v).toFixed(1); }
+svg.appendChild(el("path",{d, fill:"none", stroke:"var(--muted)","stroke-opacity":0.35,"stroke-width":1.2}));
+let ds=""; for(let i=0;i<=120;i++){ const x=i/120; ds+=(i?"L":"M")+px(x).toFixed(1)+" "+py(loss(x)).toFixed(1); }
+svg.appendChild(el("path",{d:ds, fill:"none", stroke:"var(--accent)","stroke-width":2.5}));
+const weeksMid=[4,5,6,9,5,13,9,5,5,18];
+const total=weeksMid.reduce((a,b)=>a+b,0);
+let acc=0; const xs=weeksMid.map(w=>{ const x=(acc+w)/total; acc+=w; return x*0.96; });
+const ckEls=[];
+xs.forEach((x,i)=>{
+  const g=el("g",{class:"ck",tabindex:0,role:"link","aria-label":"Go to "+PHASES[i].title});
+  const cx=px(x), cy=py(loss(x));
+  g.appendChild(el("line",{x1:cx,x2:cx,y1:cy,y2:B,stroke:"var(--line)","stroke-dasharray":"3 3"}));
+  const c=el("circle",{class:"outer",cx,cy,r:8,fill:"var(--surface)",stroke:"var(--accent)","stroke-width":2.5});
+  g.appendChild(c);
+  const t=el("text",{x:cx,y:B+18,"text-anchor":"middle"}); t.textContent="P"+(i+1); g.appendChild(t);
+  const t2=el("text",{x:cx,y:B+34,"text-anchor":"middle","font-size":"10"}); t2.textContent=PHASES[i].weeks.replace(" wks","w").replace(" mos","mo").replace(" to ","-"); g.appendChild(t2);
+  const go=()=>document.getElementById(PHASES[i].id).scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"});
+  g.addEventListener("click",go); g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();go();} });
+  svg.appendChild(g); ckEls.push(c);
+});
+{ const x=0.015, cx=px(x), cy=py(loss(x));
+  svg.appendChild(el("circle",{cx,cy,r:5,fill:"var(--warm)"}));
+  const t=el("text",{x:cx+10,y:cy+4}); t.textContent="you start here: strong DS, CV, MLOps"; t.setAttribute("style","fill:var(--warm)"); svg.appendChild(t);
+  const last=xs[xs.length-1];
+  const lab=el("text",{x:px(last)-10,y:py(loss(last))-16,"text-anchor":"end"}); lab.textContent="lab-ready"; lab.setAttribute("style","fill:var(--accent)"); svg.appendChild(lab);
+}
+
+/* ---------- progress ---------- */
+function refresh(){
+  let all=0, got=0;
+  PHASES.forEach((p,i)=>{
+    const n=p.checks.length; let k=0;
+    for(let j=0;j<n;j++) if(done[p.id+"-"+j]) k++;
+    all+=n; got+=k;
+    const pct=Math.round(100*k/n);
+    document.getElementById("bar-"+p.id).style.width=pct+"%";
+    document.getElementById("pct-"+p.id).textContent=pct+"%";
+    ckEls[i].setAttribute("fill", pct===100 ? "var(--good)" : "var(--surface)");
+    ckEls[i].setAttribute("stroke", pct===100 ? "var(--good)" : "var(--accent)");
+  });
+  document.getElementById("overallPct").textContent=Math.round(100*got/all)+"%";
+}
+phasesEl.addEventListener("change",e=>{
+  const k=e.target.dataset && e.target.dataset.k; if(!k) return;
+  if(e.target.checked) done[k]=true; else delete done[k];
+  save(); refresh();
+});
+const resetBtn=document.getElementById("resetBtn"), confirmBtn=document.getElementById("confirmReset");
+resetBtn.addEventListener("click",()=>{ confirmBtn.hidden=!confirmBtn.hidden; });
+confirmBtn.addEventListener("click",()=>{
+  done={}; save();
+  document.querySelectorAll(".checks input").forEach(i=>i.checked=false);
+  confirmBtn.hidden=true; refresh();
+});
+refresh();
+</script>
+
+</body>
+</html>
